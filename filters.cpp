@@ -2,11 +2,10 @@
  * Function definitions for the filters library.
  *
  * TODO:  Implement highpass Chebyshev and Inverse Chebyshev filters.
- *	  Also implement bandpass Butterworth filters.
-	  Invalid pointer error in destructor for Inverse Chebyshev lowpass
-	  when deleting coefficient array, but only for seventh order. */
+ *	  Also implement bandpass Butterworth filters. */
 #include <iostream>
 #include <cmath>
+#include <vector>
 #include "filters.h"
 
 /***********************
@@ -21,25 +20,31 @@ ButterworthLP::ButterworthLP (int n, double cutoffFreq, double max)
 	int i;
 
 	/* Create the vectors for the pole angles, Q values, and coefficients */
+	/* If the order of the filter is even */
 	if (n % 2 == 0) {
 		quads = n / 2;
-		poleAngles = new double [quads];
-		Q = new double [quads];
-		coefficients = new double *[quads];
+
+		poleAngles.resize (quads);
+		Q.resize (quads);
+
+		coefficients.resize (quads);
 
 		for (i = 0; i < quads; ++i) {
-			coefficients[i] = new double [3];
+			coefficients[i].resize (3);
 		}
-
 	}
+
+	/* If the order of the filter is odd */
 	else {
-		quads = (n / 2) + 1;
-		poleAngles = new double [quads];
-		Q = new double [quads];
-		coefficients = new double *[quads];
+		quads = (n + 1) / 2;
+
+		poleAngles.resize (quads);
+		Q.resize (quads);
+
+		coefficients.resize (quads);
 
 		for (i = 0; i < quads; ++i) {
-			coefficients[i] = new double [3];
+			coefficients[i].resize (3);
 		}
 	}
 
@@ -47,20 +52,6 @@ ButterworthLP::ButterworthLP (int n, double cutoffFreq, double max)
 	order = n;
 	w0 = cutoffFreq;
 	gain = pow (10, max / 20);
-}
-
-/* Class destructor */
-ButterworthLP::~ButterworthLP ()
-{
-	int i;
-
-	for (i = 0; i < ButterworthLP::quads; ++i) {
-		delete [] ButterworthLP::coefficients[i];
-	}
-
-	delete [] ButterworthLP::coefficients;
-	delete [] ButterworthLP::poleAngles;
-	delete [] ButterworthLP::Q;
 }
 
 /* Print the coefficients */
@@ -95,7 +86,7 @@ ButterworthLP::calcCoefficients ()
 {
 	int n;
 	int i, j;
-	double temp[3];
+	std::vector<double> temp (3);
 
 	/* If the order of the filter is even */
 	if (ButterworthLP::order % 2 == 0) {
@@ -198,27 +189,31 @@ ButterworthHP::ButterworthHP (int n, double cutoffFreq, double max)
 	/* Create the vectors for the pole angles, Q values, and coefficients */
 	if (n % 2 == 0) {
 		quads = n / 2;
-		poleAngles = new double [quads];
-		Q = new double [quads];
-		coefficients = new double *[quads];
-		numerator = new double *[quads];
+
+		poleAngles.resize (quads);
+		Q.resize (quads);
+
+		coefficients.resize (quads);
+		numerator.resize (quads);
 
 		for (i = 0; i < quads; ++i) {
-			coefficients[i] = new double [3];
-			numerator[i] = new double [3];
+			coefficients[i].resize (3);
+			numerator[i].resize (3);
 		}
 
 	}
 	else {
-		quads = (n / 2) + 1;
-		poleAngles = new double [quads];
-		Q = new double [quads];
-		coefficients = new double *[quads];
-		numerator = new double *[quads];
+		quads = (n + 1) / 2;
+
+		poleAngles.resize (quads);
+		Q.resize (quads);
+
+		coefficients.resize (quads);
+		numerator.resize (quads);
 
 		for (i = 0; i < quads; ++i) {
-			coefficients[i] = new double [3];
-			numerator[i] = new double [3];
+			coefficients[i].resize (3);
+			numerator[i].resize (3);
 		}
 	}
 
@@ -226,21 +221,6 @@ ButterworthHP::ButterworthHP (int n, double cutoffFreq, double max)
 	order = n;
 	w0 = cutoffFreq;
 	gain = pow (10, max / 20);
-}
-
-/* Class destructor */
-ButterworthHP::~ButterworthHP ()
-{
-	int i;
-
-	for (i = 0; i < ButterworthHP::quads; ++i) {
-		delete [] ButterworthHP::coefficients[i];
-		delete [] ButterworthHP::numerator[i];
-	}
-
-	delete [] ButterworthHP::coefficients;
-	delete [] ButterworthHP::poleAngles;
-	delete [] ButterworthHP::Q;
 }
 
 /* Print the numerator and denominator coefficients of the transfer function */
@@ -262,7 +242,7 @@ ButterworthHP::filterPrintf ()
 		std::cout << std::endl;
 	}
 
-	std::cout << ButterworthHP::gain << std::endl;
+	std::cout << "Gain = " << ButterworthHP::gain << std::endl;
 
 	std::cout <<std::endl;
 
@@ -286,7 +266,7 @@ ButterworthHP::calcCoefficients ()
 {
 	int n;
 	int i, j;
-	double temp[3];
+	std::vector<double> temp (3);
 
 	/* If the order of the filter is even */
 	if (ButterworthHP::order % 2 == 0) {
@@ -612,61 +592,39 @@ InverseChebyshevLP::InverseChebyshevLP (int n, double cutoffFreq, double min)
 	if (n % 2 == 0) {
 		quads = n / 2;
 
-		zeroFreq = new double [quads];
-		coefficients = new double *[quads];
-		numerator = new double *[quads];
+		coefficients.resize (quads);
+		numerator.resize (quads);
 
 		for (i = 0; i < quads; ++i) {
-			coefficients[i] = new double [3];
-			numerator[i] = new double [3];
+			coefficients[i].resize (3);
+			numerator[i].resize (3);
 		}
 	}
 	else {
-		quads = (n / 2) + 1;
+		quads = (n + 1) / 2;
 
-		zeroFreq = new double [quads - 1];
-		coefficients = new double *[quads];
-		numerator = new double *[quads];
+		coefficients.resize (quads);
+		numerator.resize (quads);
 
 		for (i = 0; i < quads; ++i) {
-			coefficients[i] = new double [3];
-			numerator[i] = new double [3];
+			coefficients[i].resize (3);
+			numerator[i].resize (3);
 		}
 	}
 
-	poleFreq = new double [quads];
-	Q = new double [quads];
-	sigma = new double [quads];
-	omega = new double [quads];
-	M = new double [quads];
-	k = new double [quads];
+	sigma.resize (quads);
+	omega.resize (quads);
+	poleFreq.resize (quads);
+	Q.resize (quads);
+	M.resize (quads);
+	k.resize (quads);
+	zeroFreq.resize (quads);
 
+	/* Initialize the constants */
 	epsilon = 1 / sqrt (pow (10, min / 10) - 1);
 	order = n;
 	aMin = min;
 	w0 = cutoffFreq;
-}
-
-/* Class destructor */
-InverseChebyshevLP::~InverseChebyshevLP ()
-{
-	int i;
-
-	delete [] InverseChebyshevLP::sigma;
-	delete [] InverseChebyshevLP::omega;
-	delete [] InverseChebyshevLP::poleFreq;
-	delete [] InverseChebyshevLP::Q;
-	delete [] InverseChebyshevLP::M;
-	delete [] InverseChebyshevLP::k;
-	delete [] InverseChebyshevLP::zeroFreq;
-
-	for (i = 0; i < InverseChebyshevLP::quads; ++i) {
-		delete [] InverseChebyshevLP::coefficients[i];
-		delete [] InverseChebyshevLP::numerator[i];
-	}
-
-	delete [] InverseChebyshevLP::coefficients;
-	delete [] InverseChebyshevLP::numerator;
 }
 
 /* Print the coefficients */
@@ -707,7 +665,7 @@ InverseChebyshevLP::calcCoefficients ()
 	int n;
 	int term;
 	double temp;
-	double tempArray[3];
+	std::vector<double> tempArray (3);
 
 	a = asinh (1 / InverseChebyshevLP::epsilon) / InverseChebyshevLP::order;
 	sinhA = sinh (a);

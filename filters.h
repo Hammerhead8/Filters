@@ -9,6 +9,8 @@
 #ifndef FILTERS_H
 #define FILTERS_H
 
+#include <vector>
+
 /* Class for Butterworth lowpass filter.
  * n is an integer holding the order of the filter
  * cutoffFreq is the cutoff frequency of the filter in rad/s
@@ -18,7 +20,6 @@ ButterworthLP
 {
 	public:
 		ButterworthLP (int n, double cutoffFreq, double max); /* Constructor */
-		~ButterworthLP (); /* Destructor */
 		void filterPrintf ();
 		void calcCoefficients ();
 
@@ -27,9 +28,9 @@ ButterworthLP
 		int quads; /* Number of linear and quadratic factors */
 		double w0; /* Cutoff frequency of the filter */
 		double gain; /* Gain of the filter in dB */
-		double *poleAngles; /* Vector for the pole angles in radians */
-		double *Q; /* Vector for the Q values */
-		double **coefficients; /* The factored transfer function */
+		std::vector<double> poleAngles; /* Pole angles in radians */
+		std::vector<double> Q; /* Q values for the poles */
+		std::vector <std::vector<double> > coefficients; /* The factored denominator of the transfer function */
 };
 
 /* Class for Butterworth highpass filter
@@ -41,7 +42,6 @@ ButterworthHP
 {
 	public:
 		ButterworthHP (int n, double cutoffFreq, double max); /* Constructor */
-		~ButterworthHP (); /* Destructor */
 		void filterPrintf ();
 		void calcCoefficients ();
 
@@ -50,10 +50,10 @@ ButterworthHP
 		int quads;
 		double w0;
 		double gain;
-		double *poleAngles;
-		double *Q;
-		double **coefficients;
-		double **numerator;
+		std::vector<double> poleAngles;
+		std::vector<double> Q;
+		std::vector< std::vector<double> > coefficients;
+		std::vector< std::vector<double> > numerator;
 };
 
 /* Class for Chebyshev lowpass filter
@@ -72,12 +72,12 @@ ChebyshevLP
 	private:
 		int order; /* The order of the filter */
 		int quads; /* The number of linear and quadratic factors */
-		double epsilon;
+		double epsilon; /* Damping factor */
 		double aMax; /* Maximum atenuation in dB */
-		double w0;
+		double w0; /* Cutoff frequency */
 		double numerator; /* Numerator of the transfer function */
-		double *sigma;
-		double *omega;
+		double *sigma; /* Real part of the poles */
+		double *omega; /* Imaginary part of the poles */
 		double *poleFreq; /* The pole frequencies */
 		double *Q; /* The Q values */
 		double **coefficients; /* The coefficients of the transfer function */
@@ -92,7 +92,6 @@ ChebyshevHP
 {
 	public:
 		ChebyshevHP (int n, double cutoffFreq, double max);
-		~ChebyshevHP ();
 		void filterPrintf ();
 		void calcCoefficients ();
 
@@ -103,12 +102,12 @@ ChebyshevHP
 		double aMax; /* Maximum attenuation in dB */
 		double w0; /* Cutoff frequency */
 		double gain; /* Gain of the filter */
-		double **numerator; /* Numerator of the transfer function */
-		double *sigma; /* Real part of the poles */
-		double *omega; /* Imaginary part of the poles */
-		double *poleFreq; /* The pole frequencies */
-		double *Q; /* The Q values for the poles */
-		double **coefficients; /* The coefficients of the transfer function */
+		std::vector<double> sigma; /* Real part of the poles */
+		std::vector<double> omega; /* Imaginary part of the poles */
+		std::vector<double> poleFreq; /* The pole frequencies */
+		std::vector<double> Q; /* The Q values for the poles */
+		std::vector < std::vector<double> > coefficients; /* The coefficients of the transfer function */
+		std::vector < std::vector<double> > numerator; /* Numerator of the transfer function */
 };
 
 /* Class for Inverse Chebyshev filter
@@ -120,7 +119,6 @@ InverseChebyshevLP
 {
 	public:
 		InverseChebyshevLP (int n, double cutoffFreq, double max);
-		~InverseChebyshevLP ();
 		void filterPrintf ();
 		void calcCoefficients ();
 
@@ -130,15 +128,15 @@ InverseChebyshevLP
 		double epsilon;
 		double aMin; /* minimum stopband gain */
 		double w0; /* Cutoff frequency */
-		double *sigma; /* Used to calculate pole frequencies */
-		double *omega; /* Used to calculate pole frequencies */
-		double *poleFreq; /* Pole frequencies */
-		double *Q; /* Q values of the poles */
-		double *M; /* Maximum values of each stage's output */
-		double *k; /* Gain */
-		double *zeroFreq; /* Zero frequencies */
-		double **numerator; /* Numerator coefficients */
-		double **coefficients; /* Denominator coefficients */
+		std::vector<double> sigma; /* Real part of the poles */
+		std::vector<double> omega; /* Imaginary part of the poles */
+		std::vector<double> poleFreq; /* The pole frequencies */
+		std::vector<double> Q; /* Q values of the poles */
+		std::vector<double> M; /* Maximum values of each stage's output */
+		std::vector<double> k; /* Gain */
+		std::vector<double> zeroFreq; /* The frequencies of the zeros */
+		std::vector< std::vector<double> > numerator; /* Numerator in factored form */
+		std::vector< std::vector<double> > coefficients; /* Denominator in factored form */
 };
 
 #endif
