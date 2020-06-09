@@ -15,6 +15,7 @@ The results can be easily verified by plotting the frequency response of the tra
 * Supports arbitrary filter order
 * Lowpass and highpass versions of common filter classes
 * Simple programming interface consisting of two functions
+* Only requires standard math library and vectors
 
 # Limitations
 * Currently has no error handling for invalid specifications (non-integer or negative order, etc.)
@@ -24,6 +25,7 @@ The results can be easily verified by plotting the frequency response of the tra
 * Bandpass filters
 * Arbitrary transmission zeros for lowpass and highpass
 * Highpass Inverse Chebyshev filters
+* Error handling
 
 # Usage
 
