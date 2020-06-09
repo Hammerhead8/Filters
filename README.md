@@ -9,7 +9,7 @@ Currently the following filter types are supported:
 
 This allows the tranfer function of common filter classes to be calculated much faster than could be done by hand and without the need to consult tables.
 
-The results can be easily verified by plotting the frequency response
+The results can be easily verified by plotting the frequency response of the transfer function.
 
 # Features
 * Supports arbitrary filter order
