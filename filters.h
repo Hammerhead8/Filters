@@ -1,23 +1,11 @@
-/* filters.h:  Class definitions for the filters library.
- * Copyright (C) 2020 Joshua Cates
- * <hammerhead810@gmail.com>
+/* filters.h
+ * Class definitions for the filters library.
+ * This library provides a resource for calculating the transfer function
+ * of continuous-time filters. The supported filters are
+ * Lowpass Butterworth, Highpass Butterworth, Lowpass Chebyshev,
+ * Highpass Chebyshev and Lowpass Inverse Chebyshev.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCANABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have recieved a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- *
- * TODO:  Implement highpass Chebyshev and Inverse Chebyshev filters.
- *	  Also implement arbitrary transmission zeros for Butterworth and Chebyshev filters.
- */
+ * TODO:  Implement highpass Inverse Chebyshev filters */
 #ifndef FILTERS_H
 #define FILTERS_H
 
@@ -77,7 +65,6 @@ ChebyshevLP
 {
 	public:
 		ChebyshevLP (int n, double cutoffFreq, double max);
-		~ChebyshevLP ();
 		void filterPrintf ();
 		void calcCoefficients ();
 
@@ -88,11 +75,11 @@ ChebyshevLP
 		double aMax; /* Maximum atenuation in dB */
 		double w0; /* Cutoff frequency */
 		double numerator; /* Numerator of the transfer function */
-		double *sigma; /* Real part of the poles */
-		double *omega; /* Imaginary part of the poles */
-		double *poleFreq; /* The pole frequencies */
-		double *Q; /* The Q values */
-		double **coefficients; /* The coefficients of the transfer function */
+		std::vector<double> sigma; /* Real part of the poles */
+		std::vector<double> omega; /* Imaginary part of the poles */
+		std::vector<double> poleFreq; /* The pole frequencies */
+		std::vector<double> Q; /* Q values of the poles */
+		std::vector< std::vector<double> > coefficients; /* Factors of the denominator */
 };
 
 /* Class for Chebyshev highpass filter

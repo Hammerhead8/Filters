@@ -1,24 +1,8 @@
-/* filters.cpp:  Function definitions for the filters library.
+/* filters.cpp
+ * Function definitions for the filters library.
  *
- * Copyright (C) 2020 Joshua Cates
- * <hammerhead810@gmail.com>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCANABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have recieved a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- *
- * TODO:  Implement highpass Chebyshev and Inverse Chebyshev filters.
-	  Also implement arbitrary transmission zeros for Butterworth and Chebyshev filters.
- */
+ * TODO:  Implement highpass Inverse Chebyshev filters.
+ *	  Also implement bandpass Butterworth filters. */
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -396,56 +380,34 @@ ChebyshevLP::ChebyshevLP (int n, double cutoffFreq, double max)
 		quads = n / 2;
 
 		/* Create the array for the coefficients */
-		coefficients = new double *[quads];
+		coefficients.resize (quads);
 
 		for (i = 0; i < quads; ++i) {
-			coefficients[i] = new double [3];
+			coefficients[i].resize (3);
 		}
-
-		/* Create the vector for the Q values */
-		Q = new double [quads];
 	}
 
 	else {
 		quads = (n / 2) + 1;
 
 		/* Create the array for the coefficients */
-		coefficients = new double *[quads];
+		coefficients.resize (quads);
 
 		for (i = 0; i < quads; ++i) {
-			coefficients[i] = new double [3];
+			coefficients[i].resize (3);
 		}
-
-		/* Create the vector for the Q values */
-		Q = new double [quads];
 	}
 
-	poleFreq = new double [quads];
-	sigma = new double [quads];
-	omega = new double [quads];
+	sigma.resize (quads);
+	omega.resize (quads);
+	poleFreq.resize (quads);
+	Q.resize (quads);
 
 	epsilon = sqrt (pow (10, max / 10) - 1);
 
 	order = n;
 	w0 = cutoffFreq;
 	aMax = max;
-}
-
-/* Class destructor */
-ChebyshevLP::~ChebyshevLP ()
-{
-	int i;
-
-	delete [] ChebyshevLP::sigma;
-	delete [] ChebyshevLP::omega;
-	delete [] ChebyshevLP::poleFreq; /* Error happens right here */
-	delete [] ChebyshevLP::Q;
-
-	for (i = 0; i < ChebyshevLP::quads; ++i) {
-		delete [] ChebyshevLP::coefficients[i];
-	}
-
-	delete [] ChebyshevLP::coefficients;
 }
 
 /* Print the coefficients */
@@ -582,6 +544,306 @@ ChebyshevLP::calcCoefficients ()
 	 * This is found using the following:
 	 * numerator = w_0 / (2^(n - 1) * epsilon) */
 	ChebyshevLP::numerator = 1 / (pow (2, n - 1) * ChebyshevLP::epsilon);
+
+	/* Now everything should be fully calculated */
+}
+
+/**********************
+ * Chebyshev Highpass *
+ **********************/
+
+/* Note for ChebyshevLP filters:
+ * The coefficients are calculated for unity cutoff frequency.
+ * To find the transfer function of a filter for cutoff frequencies other than
+ * unity, simply multiply the calculated pole frequencies by the desired cutoff
+ * frequency.
+ *
+ * For example:  For a fifth order filter with aMax = .5 dB
+ * T(s) = .1789 / [(s + .36232)(s^2 + .5862s + .47677)(s^2 + .22393s + 1.0358)]
+ * For a cutoff frequency of 1000 rad/s, the transfer function would be
+ * T(s) = .1789 / [(s + 362.32)(s^2 + 586.2s + 476.77)(s^2 + 223.93s + 1035.8)] */
+
+/* Class constructor */
+ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double max)
+{
+	int i;
+
+	/* If the order of the filter is even */
+	if (n % 2 == 0) {
+		quads = n  / 2;
+
+		coefficients.resize (quads);
+		numerator.resize (quads);
+
+		for (i = 0; i < quads; ++i) {
+			coefficients[i].resize (3);
+			numerator[i].resize (3);
+		}
+	}
+
+	/* Otherwise the order of the filter is even */
+	else {
+		quads = (n + 1) / 2;
+
+		coefficients.resize (quads);
+		numerator.resize (quads);
+
+		for (i = 0; i < quads; ++i) {
+			coefficients[i].resize (3);
+			numerator[i].resize (3);
+		}
+	}
+
+	poleFreq.resize (quads);
+	sigma.resize (quads);
+	omega.resize (quads);
+	Q.resize (quads);
+
+	/* Initialize the constants */
+	epsilon = sqrt (pow (10, max / 10) - 1);
+	order = n;
+	w0 = cutoffFreq;
+	aMax = max;
+}
+
+/* Print the coefficients */
+void
+ChebyshevHP::filterPrintf ()
+{
+	int i, j;
+
+	std::cout << "Chebyshev highpass:\n\n";
+
+	/* Print the numerator */
+	std::cout << "Numerator:" << std::endl;
+
+	for (i = 0; i < ChebyshevHP::quads; ++i) {
+		for (j = 0; j < 3; ++j) {
+			std::cout << ChebyshevHP::numerator[i][j] << " ";
+		}
+
+		std::cout << std::endl;
+	}
+
+	std::cout << "Gain = " << ChebyshevHP::gain << "\n\n";
+
+	/* Print the denominator */
+	std::cout << "Denominator:" << std::endl;
+
+	for (i = 0; i < ChebyshevHP::quads; ++i) {
+		for (j = 0; j < 3; ++j) {
+			std::cout << ChebyshevHP::coefficients[i][j] << " ";
+		}
+
+		std::cout << std::endl;
+	}
+}
+
+/* Calculate the transfer function */
+void
+ChebyshevHP::calcCoefficients ()
+{
+	int i, j;
+	int n;
+	double a, sinhA, coshA;
+	double quadTerm, gainMult = 1;
+	double tempNum;
+	std::vector<double> temp (3);
+
+	/* Pole locations:  s_k = o_k + jw_k
+	 * where o_k = - sinh (a) * sin ((2 * k - 1) / (2 * n) * pi)
+	 * and w_k = cosh (a) * cos ((2 * k - 1) / (2 * n) * pi)
+	 * k = 1, 2, ..., n
+	 *
+	 * The coefficients of the linear factors are of the form
+	 * s - s_1
+	 * The quadratic factors are of the form
+	 * s^2 + (w0_i / Q_i)s + w0^2
+	 *
+	 * w0_i = sqrt (o_k^2 + w_k^2)
+	 * Q_i = w0_k / (2 * o_k) */
+
+	n = ChebyshevHP::order;
+
+	/* The first step is to calculate the value of a */
+	a = asinh (1 / ChebyshevHP::epsilon) / n;
+
+	/* Next calculate the values of sinh(a) and cosh(a) */
+	sinhA = ChebyshevHP::w0 * sinh (a);
+	coshA = ChebyshevHP::w0 * cosh (a);
+
+	/* Caculate the locations of the poles as well as the pole frequencies and Q values */
+	for (i = 0; i < ChebyshevHP::quads; ++i) {
+		ChebyshevHP::sigma[i] = sinhA * sin (((2 * (i + 1) - 1) / (2 * (double)n)) * M_PI);
+		ChebyshevHP::omega[i] = coshA * cos (((2 * (i + 1) - 1) / (2 * (double)n)) * M_PI);
+		ChebyshevHP::poleFreq[i] = sqrt (pow (ChebyshevHP::sigma[i], 2) +
+					       pow (ChebyshevHP::omega[i], 2));
+
+		ChebyshevHP::Q[i] = ChebyshevHP::poleFreq[i] / (2 * ChebyshevHP::sigma[i]);
+	}
+
+	/* Now we can calculate the coefficients. */
+	if (n % 2 == 0) { /* If the order is even then there is no linear factor */
+		for (i = 0; i < ChebyshevHP::quads; ++i) {
+			ChebyshevHP::numerator[i][0] = 1;
+			ChebyshevHP::numerator[i][1] = 0;
+			ChebyshevHP::numerator[i][2] = 0;
+
+			ChebyshevHP::coefficients[i][0] = 1;
+			ChebyshevHP::coefficients[i][1] = ChebyshevHP::poleFreq[i] / ChebyshevHP::Q[i];
+			ChebyshevHP::coefficients[i][2] = pow (ChebyshevHP::poleFreq[i], 2);
+		}
+	}
+	else { /* If the order is odd then there will be a linear factor */
+		/* We first need to find which pole corresponds to the linear factor */
+		for (i = 0; i < ChebyshevHP::quads; ++i) {
+			if (ChebyshevHP::omega[i] < .001) {
+				ChebyshevHP::numerator[i][0] = 0;
+				ChebyshevHP::numerator[i][1] = 1;
+				ChebyshevHP::numerator[i][2] = 0;
+
+				ChebyshevHP::coefficients[i][0] = 0;
+				ChebyshevHP::coefficients[i][1] = 1;
+				ChebyshevHP::coefficients[i][2] = ChebyshevHP::poleFreq[i];
+			}
+			else {
+				ChebyshevHP::numerator[i][0] = 1;
+				ChebyshevHP::numerator[i][1] = 0;
+				ChebyshevHP::numerator[i][2] = 0;
+
+				ChebyshevHP::coefficients[i][0] = 1;
+				ChebyshevHP::coefficients[i][1] = ChebyshevHP::poleFreq[i] / ChebyshevHP::Q[i];
+				ChebyshevHP::coefficients[i][2] = pow (ChebyshevHP::poleFreq[i], 2);
+			}
+		}
+
+		/* If the linear factor is not the first term then we need to make it first */
+		for (i = 0; i < ChebyshevHP::quads; ++i) {
+			if (ChebyshevHP::coefficients[i][0] == 0) {
+				temp[0] = ChebyshevHP::numerator[0][0];
+				temp[1] = ChebyshevHP::numerator[0][1];
+				temp[2] = ChebyshevHP::numerator[0][2];
+
+				ChebyshevHP::numerator[0][0] = ChebyshevHP::numerator[i][0];
+				ChebyshevHP::numerator[0][1] = ChebyshevHP::numerator[i][1];
+				ChebyshevHP::numerator[0][2] = ChebyshevHP::numerator[i][2];
+
+				ChebyshevHP::numerator[i][0] = temp[0];
+				ChebyshevHP::numerator[i][1] = temp[1];
+				ChebyshevHP::numerator[i][2] = temp[2];
+
+				temp[0] = ChebyshevHP::coefficients[0][0];
+				temp[1] = ChebyshevHP::coefficients[0][1];
+				temp[2] = ChebyshevHP::coefficients[0][2];
+
+				ChebyshevHP::coefficients[0][0] = ChebyshevHP::coefficients[i][0];
+				ChebyshevHP::coefficients[0][1] = ChebyshevHP::coefficients[i][1];
+				ChebyshevHP::coefficients[0][2] = ChebyshevHP::coefficients[i][2];
+
+				ChebyshevHP::coefficients[i][0] = temp[0];
+				ChebyshevHP::coefficients[i][1] = temp[1];
+				ChebyshevHP::coefficients[i][2] = temp[2];
+
+				break;
+			}
+		}
+	}
+
+	/* Now sort the stages in order of increasing Q */
+/*	for (i = 0; i < ChebyshevHP::quads - 1; ++i) {
+		for (j = 1; j < ChebyshevHP::quads; ++j) { */
+	
+	for (i = 1; i < ChebyshevHP::quads - 1; ++i) {
+		if (ChebyshevHP::Q[i+1] < ChebyshevHP::Q[i]) { /* If a stage with a smaller Q is found after the current stage */
+				temp[0] = ChebyshevHP::coefficients[i][0];
+				temp[1] = ChebyshevHP::coefficients[i][1];
+				temp[2] = ChebyshevHP::coefficients[i][2];
+
+				ChebyshevHP::coefficients[i][0] = ChebyshevHP::coefficients[i+1][0];
+				ChebyshevHP::coefficients[i][1] = ChebyshevHP::coefficients[i+1][1];
+				ChebyshevHP::coefficients[i][2] = ChebyshevHP::coefficients[i+1][2];
+
+				ChebyshevHP::coefficients[i+1][0] = temp[0];
+				ChebyshevHP::coefficients[i+1][1] = temp[1];
+				ChebyshevHP::coefficients[i+1][2] = temp[2];
+		}
+	}
+
+	/* The last step is to perform the lowpass-to-highpass transformation.
+	 * This is done by taking the lowpass transfer function T_L(S) and
+	 * substituting s = 1/S to get T_H(s).
+	 * After making the substitution the quadratic factors are of the form
+	 * 	a * s^-2 + b * s^-1 + c
+	 * and the linear factors are of the form
+	 * 	a * s^-1 + b
+	 *
+	 * We then swap the first and last terms in each factor since we multiply
+	 * the quadratic factors by s^2 and the linear factors by s to remove the
+	 * negative exponent. Then the quadratic factors will be of the form
+	 * 	c * s^2 + b * s + a
+	 * and the linear factors will be of the form
+	 * 	b * s + a
+	 *
+	 * The last step will be to divide each factor by its leading coefficient
+	 * to normalize the leading term. This will leave the quadratic factors in the form of
+	 * 	s^2 + (b / c) * s + (a / c)
+	 * and the linear factors in the form of
+	 * 	s + (a / b)
+	 *
+	 * We also need to divide the gain by the product of the leading terms in each factor */
+
+	/* If the order is even then there is no linear term to deal with */
+	if (n % 2 == 0) {
+		for (i = 0; i < ChebyshevHP::quads; ++i) {
+			tempNum = ChebyshevHP::coefficients[i][0];
+			ChebyshevHP::coefficients[i][0] = ChebyshevHP::coefficients[i][2];
+			ChebyshevHP::coefficients[i][2] = tempNum;
+
+			quadTerm = ChebyshevHP::coefficients[i][0];
+
+			ChebyshevHP::coefficients[i][0] /= quadTerm;
+			ChebyshevHP::coefficients[i][1] /= quadTerm;
+			ChebyshevHP::coefficients[i][2] /= quadTerm;
+
+			gainMult *= quadTerm;
+		}
+	}
+
+	/* Otherwise the order is odd and we need to deal with the linear factor */
+	else {
+		tempNum = ChebyshevHP::coefficients[0][1];
+		ChebyshevHP::coefficients[0][1] = ChebyshevHP::coefficients[0][2];
+		ChebyshevHP::coefficients[0][2] = tempNum;
+
+		quadTerm = ChebyshevHP::coefficients[0][1];
+
+		ChebyshevHP::coefficients[0][1] /= quadTerm;
+		ChebyshevHP::coefficients[0][2] /= quadTerm;
+
+		gainMult *= quadTerm;
+
+		for (i = 1; i < ChebyshevHP::quads; ++i) {
+			tempNum = ChebyshevHP::coefficients[i][0];
+			ChebyshevHP::coefficients[i][0] = ChebyshevHP::coefficients[i][2];
+			ChebyshevHP::coefficients[i][2] = tempNum;
+
+			quadTerm = ChebyshevHP::coefficients[i][0];
+
+			ChebyshevHP::coefficients[i][0] /= quadTerm;
+			ChebyshevHP::coefficients[i][1] /= quadTerm;
+			ChebyshevHP::coefficients[i][2] /= quadTerm;
+
+			gainMult *= quadTerm;
+		}
+	}			
+
+	/* The coefficients should now be fully calculated.
+	 * The only thing left to find is the gain.
+	 * This is found using the following:
+	 * gain = w_0 / (2^(n - 1) * epsilon)
+	 * This is then divided by gainMult calculated above */
+	ChebyshevHP::gain = 1 / (pow (2, n - 1) * ChebyshevHP::epsilon);
+	ChebyshevHP::gain /= gainMult;
 
 	/* Now everything should be fully calculated */
 }
