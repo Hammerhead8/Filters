@@ -790,7 +790,7 @@ ChebyshevHP::calcCoefficients ()
 	 * and the linear factors in the form of
 	 * 	s + (a / b)
 	 *
-	 * We also need to divide the gain by the product of the leading terms in each factor */
+	 * We also need to multiply the gain by the product of the leading terms in each factor */
 
 	/* If the order is even then there is no linear term to deal with */
 	if (n % 2 == 0) {
@@ -835,15 +835,15 @@ ChebyshevHP::calcCoefficients ()
 
 			gainMult *= quadTerm;
 		}
-	}			
+	}
 
 	/* The coefficients should now be fully calculated.
 	 * The only thing left to find is the gain.
 	 * This is found using the following:
 	 * gain = w_0 / (2^(n - 1) * epsilon)
-	 * This is then divided by gainMult calculated above */
+	 * This is then multiplied by gainMult calculated above */
 	ChebyshevHP::gain = 1 / (pow (2, n - 1) * ChebyshevHP::epsilon);
-	ChebyshevHP::gain /= gainMult;
+	ChebyshevHP::gain *= gainMult;
 
 	/* Now everything should be fully calculated */
 }
