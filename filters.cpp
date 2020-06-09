@@ -85,7 +85,7 @@ void
 ButterworthLP::calcCoefficients ()
 {
 	int n;
-	int i, j;
+	int i;
 	std::vector<double> temp (3);
 
 	/* If the order of the filter is even */
@@ -265,7 +265,7 @@ void
 ButterworthHP::calcCoefficients ()
 {
 	int n;
-	int i, j;
+	int i;
 	std::vector<double> temp (3);
 
 	/* If the order of the filter is even */
@@ -439,7 +439,7 @@ ChebyshevLP::filterPrintf ()
 void
 ChebyshevLP::calcCoefficients ()
 {
-	int i, j;
+	int i;
 	int n;
 	double a, sinhA, coshA;
 	double temp[3];
@@ -643,7 +643,7 @@ ChebyshevHP::filterPrintf ()
 void
 ChebyshevHP::calcCoefficients ()
 {
-	int i, j;
+	int i;
 	int n;
 	double a, sinhA, coshA;
 	double quadTerm, gainMult = 1;
@@ -843,7 +843,7 @@ ChebyshevHP::calcCoefficients ()
 	 * gain = w_0 / (2^(n - 1) * epsilon)
 	 * This is then multiplied by gainMult calculated above */
 	ChebyshevHP::gain = 1 / (pow (2, n - 1) * ChebyshevHP::epsilon);
-	ChebyshevHP::gain *= gainMult;
+	ChebyshevHP::gain /= gainMult;
 
 	/* Now everything should be fully calculated */
 }
@@ -938,10 +938,9 @@ InverseChebyshevLP::filterPrintf ()
 void
 InverseChebyshevLP::calcCoefficients ()
 {
-	int i, j;
+	int i;
 	double a, sinhA, coshA;
 	int n;
-	int term;
 	double temp;
 	std::vector<double> tempArray (3);
 
