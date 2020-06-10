@@ -15,6 +15,7 @@ The results can be easily verified by plotting the frequency response of the tra
 * Supports arbitrary filter order
 * Lowpass and highpass versions of common filter classes
 * Simple programming interface consisting of two functions
+* Only requires standard math library and vectors
 
 # Limitations
 * Currently has no error handling for invalid specifications (non-integer or negative order, etc.)
@@ -24,8 +25,21 @@ The results can be easily verified by plotting the frequency response of the tra
 * Bandpass filters
 * Arbitrary transmission zeros for lowpass and highpass
 * Highpass Inverse Chebyshev filters
+* Error handling
 
 # Usage
+
+The classes for the available filter types are as follows:
+* ButterworthLP
+	* Lowpass Butterworth
+* ButterworthHP
+	* Highpass Butterworth
+* ChebyshevLP
+	* Lowpass Chebyshev
+* ChebyshevHP
+	* Highpass Chebyshev
+* InverseChebyshevLP
+	* Lowpass Inverse Chebyshev
 
 An example for a fifth order lowpass Butterworth filter with a cutoff frequency of 1 rad/s and a passband gain of 0 dB would be as follows:
 
@@ -53,6 +67,28 @@ Denominator:
 1 1.61803 1
 1 0.618034 1
 ```
+
+Another example with a fourth order highpass Chebyshev filter with a cutoff frequency of 15 rad/s and maximum passband ripple of 20 dB would be as follows:
+
+```
+#include "filters.h"
+
+int
+main ()
+{
+	ChebyshevHP myFilter (6, 15, 20);
+
+	myFilter.calcCoefficients ();
+	myFilter.filterPrintf ();
+
+	return 0;
+}
+```
+
+This will give the following output:
+
+```
+Numerator
 
 To compile, simply include the filters.h file in your source file and call the compiler as normal.
 Using g++ this would look something like:
