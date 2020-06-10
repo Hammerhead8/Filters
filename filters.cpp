@@ -520,9 +520,6 @@ ChebyshevLP::calcCoefficients ()
 	}
 
 	/* Now sort the stages in order of increasing Q */
-/*	for (i = 0; i < ChebyshevLP::quads - 1; ++i) {
-		for (j = 1; j < ChebyshevLP::quads; ++j) { */
-	
 	for (i = 1; i < ChebyshevLP::quads - 1; ++i) {
 		if (ChebyshevLP::Q[i+1] < ChebyshevLP::Q[i]) { /* If a stage with a smaller Q is found after the current stage */
 				temp[0] = ChebyshevLP::coefficients[i][0];
