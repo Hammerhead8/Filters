@@ -20,15 +20,16 @@ The results can be easily verified by plotting the frequency response of the tra
 # Limitations
 * Currently has no error handling for invalid specifications (non-integer or negative order, etc.)
 * No intention to support circuit design
+* No way to specify passband gain, so calculated gain might not match desired specification
 
 # Planned Features
 * Bandpass filters
 * Arbitrary transmission zeros for lowpass and highpass
 * Highpass Inverse Chebyshev filters
 * Error handling
+* Specify desired passband gain
 
 # Usage
-
 The classes for the available filter types are as follows:
 * ButterworthLP
 	* Lowpass Butterworth
@@ -88,7 +89,15 @@ main ()
 This will give the following output:
 
 ```
-Numerator
+Numerator:
+1 0 0
+1 0 0
+Gain = 5062.5
+
+Denominator:
+1 0.337171 263.41 
+1 4.72753 1529.82
+```
 
 To compile, simply include the filters.h file in your source file and call the compiler as normal.
 Using g++ this would look something like:
