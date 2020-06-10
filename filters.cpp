@@ -179,7 +179,7 @@ ButterworthLP::calcCoefficients ()
  * The coefficients for a highpass Butterworth filter are found the same way
  * as for a lowpass Butterworth filter. The only difference is the numerator.
  * Rather than just having a constant, there will be an s term whose exponent
- * is equal to the degree of the filter */
+ * is equal to the order of the filter */
 
 /* Class constructor */
 ButterworthHP::ButterworthHP (int n, double cutoffFreq, double max)
@@ -668,9 +668,12 @@ ChebyshevHP::calcCoefficients ()
 	/* The first step is to calculate the value of a */
 	a = asinh (1 / ChebyshevHP::epsilon) / n;
 
-	/* Next calculate the values of sinh(a) and cosh(a) */
-	sinhA = ChebyshevHP::w0 * sinh (a);
-	coshA = ChebyshevHP::w0 * cosh (a);
+	/* Next calculate the values of sinh(a) and cosh(a)
+	 * We also divide each by the cutoff frequency.
+	 * This is because performing the lowpass to highpass transformation
+	 * inverts the poles of the filter. */
+	sinhA = sinh (a) / ChebyshevHP::w0;
+	coshA = cosh (a) / ChebyshevHP::w0;
 
 	/* Caculate the locations of the poles as well as the pole frequencies and Q values */
 	for (i = 0; i < ChebyshevHP::quads; ++i) {
