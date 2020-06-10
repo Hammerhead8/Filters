@@ -27,7 +27,7 @@ The results can be easily verified by plotting the frequency response of the tra
 * Arbitrary transmission zeros for lowpass and highpass
 * Highpass Inverse Chebyshev filters
 * Error handling
-* Specify desired passband gain
+* Specify desired passband gain for Chebyshev and Inverse Chebyshev filters
 
 # Usage
 The classes for the available filter types are as follows:
