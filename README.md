@@ -14,6 +14,7 @@ The results can be easily verified by plotting the frequency response of the tra
 # Features
 * Supports arbitrary filter order
 * Lowpass and highpass versions of common filter classes
+* Filter stages are sorted by increasing Q for optimal cascade design
 * Simple programming interface consisting of two functions
 * Only requires standard math library and vectors
 
