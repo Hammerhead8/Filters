@@ -11,6 +11,10 @@ This allows the tranfer function of common filter classes to be calculated much 
 
 The results can be easily verified by plotting the frequency response of the transfer function.
 
+This library came about after taking a university class on analog signal processing and not wanting to have to look up transfer function coefficients in tables.
+It started as a simple program to calculate the pole locations of Butterworth filters which expanded to calculating the transfer function. From there it has expanded
+to include Chebyshev and Inverse Chebyshev filters.
+
 # Features
 * Supports arbitrary filter order
 * Supports specifying passband gain
@@ -22,7 +26,7 @@ The results can be easily verified by plotting the frequency response of the tra
 # Limitations
 * Currently has no error handling for invalid specifications (non-integer or negative order, etc.)
 * No intention to support circuit design
-* Specifying passband gain is only implemented in Butterworth and Chebyshev filters.
+* Specifying passband gain is only implemented in Butterworth and Lowpass Chebyshev filters.
 	* For Chebyshev filters only gain less than or equal to zero are currently supported
 
 # Planned Features
