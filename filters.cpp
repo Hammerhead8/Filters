@@ -4,7 +4,7 @@
  * Copyright (C) 2020 Joshua Cates
  * hammerhead810@gmail.com
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is free software; you can redistribute it and/or modify1
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -599,6 +599,12 @@ ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
 	if (n % 2 == 0) {
 		quads = n  / 2;
 
+		order = n;
+		w0 = cutoffFreq;
+		aMax = max;
+
+		passbandGain = pow (10, (-1 * aMax - passGain) / 20) / pow (w0, order);
+
 		coefficients.resize (quads);
 		numerator.resize (quads);
 
@@ -611,6 +617,12 @@ ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
 	/* Otherwise the order of the filter is even */
 	else {
 		quads = (n + 1) / 2;
+
+		order = n;
+		w0 = cutoffFreq;
+		aMax = max;
+
+		passbandGain = 1 / pow (w0, order);
 
 		coefficients.resize (quads);
 		numerator.resize (quads);
@@ -631,7 +643,6 @@ ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
 	order = n;
 	w0 = cutoffFreq;
 	aMax = max;
-	passbandGain = pow (10, (-1 * aMax - passGain) / 20);
 }
 
 /* Print the coefficients */
