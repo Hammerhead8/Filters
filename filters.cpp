@@ -1,8 +1,25 @@
 /* filters.cpp
- * Function definitions for the filters library.
+ *Function definitions for the filters library.
+ *
+ * Copyright (C) 2020 Joshua Cates
+ * hammerhead810@gmail.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>
  *
  * TODO:  Implement highpass Inverse Chebyshev filters.
- *	  Also implement bandpass Butterworth filters. */
+ *	  Implement bandpass Butterworth filters.
+	  Implement positive passband gain for Chebyshev filters. */
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -85,7 +102,7 @@ void
 ButterworthLP::calcCoefficients ()
 {
 	int n;
-	int i;
+	int i, j;
 	std::vector<double> temp (3);
 
 	/* If the order of the filter is even */
@@ -265,7 +282,7 @@ void
 ButterworthHP::calcCoefficients ()
 {
 	int n;
-	int i;
+	int i, j;
 	std::vector<double> temp (3);
 
 	/* If the order of the filter is even */
@@ -372,7 +389,7 @@ ButterworthHP::calcCoefficients ()
  * T(s) = .1789 / [(s + 362.32)(s^2 + 586.2s + 476.77)(s^2 + 223.93s + 1035.8)] */
 
 /* Class constructor */
-ChebyshevLP::ChebyshevLP (int n, double cutoffFreq, double max)
+ChebyshevLP::ChebyshevLP (int n, double cutoffFreq, double passGain, double max)
 {
 	int i;
 
@@ -408,6 +425,7 @@ ChebyshevLP::ChebyshevLP (int n, double cutoffFreq, double max)
 	order = n;
 	w0 = cutoffFreq;
 	aMax = max;
+	passbandGain = pow (10, (-1 * aMax - passGain) / 20);
 }
 
 /* Print the coefficients */
@@ -439,7 +457,7 @@ ChebyshevLP::filterPrintf ()
 void
 ChebyshevLP::calcCoefficients ()
 {
-	int i;
+	int i, j;
 	int n;
 	double a, sinhA, coshA;
 	double temp[3];
@@ -520,6 +538,9 @@ ChebyshevLP::calcCoefficients ()
 	}
 
 	/* Now sort the stages in order of increasing Q */
+/*	for (i = 0; i < ChebyshevLP::quads - 1; ++i) {
+		for (j = 1; j < ChebyshevLP::quads; ++j) { */
+	
 	for (i = 1; i < ChebyshevLP::quads - 1; ++i) {
 		if (ChebyshevLP::Q[i+1] < ChebyshevLP::Q[i]) { /* If a stage with a smaller Q is found after the current stage */
 				temp[0] = ChebyshevLP::coefficients[i][0];
@@ -541,6 +562,7 @@ ChebyshevLP::calcCoefficients ()
 	 * This is found using the following:
 	 * numerator = w_0 / (2^(n - 1) * epsilon) */
 	ChebyshevLP::numerator = 1 / (pow (2, n - 1) * ChebyshevLP::epsilon);
+	ChebyshevLP::numerator /= ChebyshevLP::passbandGain;
 
 	/* Now everything should be fully calculated */
 }
@@ -561,7 +583,7 @@ ChebyshevLP::calcCoefficients ()
  * T(s) = .1789 / [(s + 362.32)(s^2 + 586.2s + 476.77)(s^2 + 223.93s + 1035.8)] */
 
 /* Class constructor */
-ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double max)
+ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
 {
 	int i;
 
@@ -601,6 +623,7 @@ ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double max)
 	order = n;
 	w0 = cutoffFreq;
 	aMax = max;
+	passbandGain = pow (10, (-1 * aMax - passGain) / 20);
 }
 
 /* Print the coefficients */
@@ -640,7 +663,7 @@ ChebyshevHP::filterPrintf ()
 void
 ChebyshevHP::calcCoefficients ()
 {
-	int i;
+	int i, j;
 	int n;
 	double a, sinhA, coshA;
 	double quadTerm, gainMult = 1;
@@ -790,7 +813,7 @@ ChebyshevHP::calcCoefficients ()
 	 * and the linear factors in the form of
 	 * 	s + (a / b)
 	 *
-	 * We also need to multiply the gain by the product of the leading terms in each factor */
+	 * We also need to divide the gain by the product of the leading terms in each factor */
 
 	/* If the order is even then there is no linear term to deal with */
 	if (n % 2 == 0) {
@@ -835,15 +858,16 @@ ChebyshevHP::calcCoefficients ()
 
 			gainMult *= quadTerm;
 		}
-	}
+	}			
 
 	/* The coefficients should now be fully calculated.
 	 * The only thing left to find is the gain.
 	 * This is found using the following:
 	 * gain = w_0 / (2^(n - 1) * epsilon)
-	 * This is then multiplied by gainMult calculated above */
+	 * This is then divided by gainMult calculated above */
 	ChebyshevHP::gain = 1 / (pow (2, n - 1) * ChebyshevHP::epsilon);
 	ChebyshevHP::gain /= gainMult;
+	ChebyshevHP::gain /= ChebyshevHP::passbandGain;
 
 	/* Now everything should be fully calculated */
 }
@@ -938,9 +962,10 @@ InverseChebyshevLP::filterPrintf ()
 void
 InverseChebyshevLP::calcCoefficients ()
 {
-	int i;
+	int i, j;
 	double a, sinhA, coshA;
 	int n;
+	int term;
 	double temp;
 	std::vector<double> tempArray (3);
 
