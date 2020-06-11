@@ -415,7 +415,9 @@ ChebyshevLP::ChebyshevLP (int n, double cutoffFreq, double passGain, double max)
 		order = n;
 		w0 = cutoffFreq;
 		aMax = max;
-		passbandGain = (pow (10, ((-1 * aMax - passGain) / 20) + 1) / pow (w0, order)) * pow (10, (-1 * aMax - passGain) / 20);
+		passbandGain = 1 / pow (w0, order);
+//		passbandGain = (pow (10, ((-1 * aMax - passGain) / 20) + 1) / pow (w0, order));
+//		passbandGain /= pow (10, ((-1 * aMax - passGain) / 20) + 1);
 
 		/* Create the array for the coefficients */
 		coefficients.resize (quads);
