@@ -1,5 +1,5 @@
 /* filters.cpp
- *Function definitions for the filters library.
+ * Function definitions for the filters library.
  *
  * Copyright (C) 2020 Joshua Cates
  * hammerhead810@gmail.com
@@ -396,6 +396,11 @@ ChebyshevLP::ChebyshevLP (int n, double cutoffFreq, double passGain, double max)
 	if (n % 2 == 0) {
 		quads = n / 2;
 
+		order = n;
+		w0 = cutoffFreq;
+		aMax = max;
+		passbandGain = pow (10, (-1 * aMax - passGain) / 20) / pow (w0, order);
+
 		/* Create the array for the coefficients */
 		coefficients.resize (quads);
 
@@ -405,7 +410,12 @@ ChebyshevLP::ChebyshevLP (int n, double cutoffFreq, double passGain, double max)
 	}
 
 	else {
-		quads = (n / 2) + 1;
+		quads = (n + 1) / 2;
+
+		order = n;
+		w0 = cutoffFreq;
+		aMax = max;
+		passbandGain = (pow (10, ((-1 * aMax - passGain) / 20) + 1) / pow (w0, order)) * pow (10, (-1 * aMax - passGain) / 20);
 
 		/* Create the array for the coefficients */
 		coefficients.resize (quads);
@@ -421,11 +431,7 @@ ChebyshevLP::ChebyshevLP (int n, double cutoffFreq, double passGain, double max)
 	Q.resize (quads);
 
 	epsilon = sqrt (pow (10, max / 10) - 1);
-
-	order = n;
-	w0 = cutoffFreq;
-	aMax = max;
-	passbandGain = pow (10, (-1 * aMax - passGain) / 20);
+//	passbandGain = pow (10, (-1 * aMax - passGain) / 20) / pow (w0, order);
 }
 
 /* Print the coefficients */
@@ -540,7 +546,7 @@ ChebyshevLP::calcCoefficients ()
 	/* Now sort the stages in order of increasing Q */
 /*	for (i = 0; i < ChebyshevLP::quads - 1; ++i) {
 		for (j = 1; j < ChebyshevLP::quads; ++j) { */
-	
+
 	for (i = 1; i < ChebyshevLP::quads - 1; ++i) {
 		if (ChebyshevLP::Q[i+1] < ChebyshevLP::Q[i]) { /* If a stage with a smaller Q is found after the current stage */
 				temp[0] = ChebyshevLP::coefficients[i][0];

@@ -89,7 +89,8 @@ ChebyshevLP
 		double epsilon; /* Damping factor */
 		double aMax; /* Maximum atenuation in dB */
 		double w0; /* Cutoff frequency */
-		double passbandGain; /* Passband gain of the function before ripple starts */
+//		double passbandGain; /* Passband gain of the function before ripple starts */
+		double passbandGain; /* Gain in the passband */
 		double numerator; /* Numerator of the transfer function */
 		std::vector<double> sigma; /* Real part of the poles */
 		std::vector<double> omega; /* Imaginary part of the poles */
