@@ -396,11 +396,6 @@ ChebyshevLP::ChebyshevLP (int n, double cutoffFreq, double passGain, double max)
 	if (n % 2 == 0) {
 		quads = n / 2;
 
-		order = n;
-		w0 = cutoffFreq;
-		aMax = max;
-		passbandGain = pow (10, (-1 * aMax - passGain) / 20) / pow (w0, order);
-
 		/* Create the array for the coefficients */
 		coefficients.resize (quads);
 
@@ -411,13 +406,6 @@ ChebyshevLP::ChebyshevLP (int n, double cutoffFreq, double passGain, double max)
 
 	else {
 		quads = (n + 1) / 2;
-
-		order = n;
-		w0 = cutoffFreq;
-		aMax = max;
-		passbandGain = 1 / pow (w0, order);
-//		passbandGain = (pow (10, ((-1 * aMax - passGain) / 20) + 1) / pow (w0, order));
-//		passbandGain /= pow (10, ((-1 * aMax - passGain) / 20) + 1);
 
 		/* Create the array for the coefficients */
 		coefficients.resize (quads);
@@ -432,8 +420,12 @@ ChebyshevLP::ChebyshevLP (int n, double cutoffFreq, double passGain, double max)
 	poleFreq.resize (quads);
 	Q.resize (quads);
 
+	order = n;
+	w0 = cutoffFreq;
+	aMax = max;
+
 	epsilon = sqrt (pow (10, max / 10) - 1);
-//	passbandGain = pow (10, (-1 * aMax - passGain) / 20) / pow (w0, order);
+	passbandGain = 1 / pow (w0, order);
 }
 
 /* Print the coefficients */
@@ -588,7 +580,10 @@ ChebyshevLP::calcCoefficients ()
  * For example:  For a fifth order filter with aMax = .5 dB
  * T(s) = .1789 / [(s + .36232)(s^2 + .5862s + .47677)(s^2 + .22393s + 1.0358)]
  * For a cutoff frequency of 1000 rad/s, the transfer function would be
- * T(s) = .1789 / [(s + 362.32)(s^2 + 586.2s + 476.77)(s^2 + 223.93s + 1035.8)] */
+ * T(s) = .1789 / [(s + 362.32)(s^2 + 586.2s + 476.77)(s^2 + 223.93s + 1035.8)]
+ *
+ * TODO:  Currently gives incorrect coefficients and gain values for filter
+ *	  orders greater than 2. */
 
 /* Class constructor */
 ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
@@ -603,7 +598,7 @@ ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
 		w0 = cutoffFreq;
 		aMax = max;
 
-		passbandGain = pow (10, (-1 * aMax - passGain) / 20) / pow (w0, order);
+//		passbandGain = pow (10, passGain / 20) / pow (w0, order);
 
 		coefficients.resize (quads);
 		numerator.resize (quads);
@@ -622,7 +617,7 @@ ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
 		w0 = cutoffFreq;
 		aMax = max;
 
-		passbandGain = 1 / pow (w0, order);
+//		passbandGain = 1 / pow (w0, order);
 
 		coefficients.resize (quads);
 		numerator.resize (quads);
@@ -640,9 +635,9 @@ ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
 
 	/* Initialize the constants */
 	epsilon = sqrt (pow (10, max / 10) - 1);
-	order = n;
-	w0 = cutoffFreq;
-	aMax = max;
+	passbandGain = pow (10, passGain / 20);
+
+	std::cout << passbandGain << std::endl;
 }
 
 /* Print the coefficients */
@@ -813,7 +808,8 @@ ChebyshevHP::calcCoefficients ()
 
 	/* The last step is to perform the lowpass-to-highpass transformation.
 	 * This is done by taking the lowpass transfer function T_L(S) and
-	 * substituting s = 1/S to get T_H(s).
+	 * substituting s = 1/S to get T_H(s). That is:  T_H(s) = T_L(1/s).
+	 *
 	 * After making the substitution the quadratic factors are of the form
 	 * 	a * s^-2 + b * s^-1 + c
 	 * and the linear factors are of the form
@@ -884,7 +880,7 @@ ChebyshevHP::calcCoefficients ()
 	 * This is found using the following:
 	 * gain = w_0 / (2^(n - 1) * epsilon)
 	 * This is then divided by gainMult calculated above */
-	ChebyshevHP::gain = 1 / (pow (2, n - 1) * ChebyshevHP::epsilon);
+	ChebyshevHP::gain = ChebyshevHP::w0 / (pow (2, n - 1) * ChebyshevHP::epsilon);
 	ChebyshevHP::gain /= gainMult;
 	ChebyshevHP::gain /= ChebyshevHP::passbandGain;
 
