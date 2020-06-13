@@ -598,8 +598,6 @@ ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
 		w0 = cutoffFreq;
 		aMax = max;
 
-//		passbandGain = pow (10, passGain / 20) / pow (w0, order);
-
 		coefficients.resize (quads);
 		numerator.resize (quads);
 
@@ -617,8 +615,6 @@ ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
 		w0 = cutoffFreq;
 		aMax = max;
 
-//		passbandGain = 1 / pow (w0, order);
-
 		coefficients.resize (quads);
 		numerator.resize (quads);
 
@@ -635,7 +631,10 @@ ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
 
 	/* Initialize the constants */
 	epsilon = sqrt (pow (10, max / 10) - 1);
-	passbandGain = pow (10, passGain / 20);
+
+	/* Note that this is the inverse of
+	 * the gain for the Lowpass Chebyshev */
+	passbandGain = pow (w0, order);
 
 	std::cout << passbandGain << std::endl;
 }
@@ -876,11 +875,11 @@ ChebyshevHP::calcCoefficients ()
 	}			
 
 	/* The coefficients should now be fully calculated.
-	 * The only thing left to find is the gain.
+	 * The only thing left to find is the numerator.
 	 * This is found using the following:
 	 * gain = w_0 / (2^(n - 1) * epsilon)
 	 * This is then divided by gainMult calculated above */
-	ChebyshevHP::gain = ChebyshevHP::w0 / (pow (2, n - 1) * ChebyshevHP::epsilon);
+	ChebyshevHP::gain = 1 / (pow (2, n - 1) * ChebyshevHP::epsilon);
 	ChebyshevHP::gain /= gainMult;
 	ChebyshevHP::gain /= ChebyshevHP::passbandGain;
 
