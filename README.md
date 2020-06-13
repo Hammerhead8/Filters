@@ -26,7 +26,7 @@ to include Chebyshev and Inverse Chebyshev filters.
 # Limitations
 * Currently has no error handling for invalid specifications (non-integer or negative order, etc.)
 * No intention to support circuit design
-* Specifying passband gain is only implemented in Butterworth and Lowpass Chebyshev filters.
+* Specifying passband gain is only implemented in Butterworth and Chebyshev filters.
 	* For Chebyshev filters only gain less than or equal to zero are currently supported
 
 # Planned Features
