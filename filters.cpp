@@ -872,7 +872,7 @@ ChebyshevHP::calcCoefficients ()
 
 			gainMult *= quadTerm;
 		}
-	}			
+	}
 
 	/* The coefficients should now be fully calculated.
 	 * The only thing left to find is the numerator.
@@ -901,9 +901,10 @@ ChebyshevHP::calcCoefficients ()
  */
 
 /* Class constructor */
-InverseChebyshevLP::InverseChebyshevLP (int n, double cutoffFreq, double min)
+InverseChebyshevLP::InverseChebyshevLP (int n, double cutoffFreq, double passGain, double min)
 {
 	int i;
+	double CnNumerator, CnDenominator;
 
 	if (n % 2 == 0) {
 		quads = n / 2;
@@ -941,6 +942,7 @@ InverseChebyshevLP::InverseChebyshevLP (int n, double cutoffFreq, double min)
 	order = n;
 	aMin = min;
 	w0 = cutoffFreq;
+	passbandGain = pow (10, passGain / 20);
 }
 
 /* Print the coefficients */
@@ -959,6 +961,8 @@ InverseChebyshevLP::filterPrintf ()
 		}
 		std::cout << "\n";
 	}
+
+	std::cout << "Gain = " << InverseChebyshevLP::passbandGain << std::endl;
 
 	std::cout << "\nDenominators:" << std::endl;
 
@@ -988,8 +992,8 @@ InverseChebyshevLP::calcCoefficients ()
 	coshA = cosh (a);
 	n = InverseChebyshevLP::order;
 
-	/* Calculate the values of sigma_i, omega_i, pole frequencies, Q value,
-	 * zero frequencies, and gains for the stages */
+	/* Calculate the values of sigma_i, omega_i, pole frequencies, Q value
+	 * and zero frequencies.= */
 	for (i = 0; i < InverseChebyshevLP::quads; ++i) {
 		InverseChebyshevLP::sigma[i] = sinhA * sin (((2 * (i + 1) - 1) / (2 * (double)n)) * M_PI);
 		InverseChebyshevLP::omega[i] = coshA * cos (((2 * (i + 1) - 1) / (2 * (double)n)) * M_PI);
@@ -998,27 +1002,51 @@ InverseChebyshevLP::calcCoefficients ()
 
 		InverseChebyshevLP::Q[i] = InverseChebyshevLP::poleFreq[i] / (2 * InverseChebyshevLP::sigma[i]);
 
+		/* sigma + j*omega is the pole of a chebyshev filter
+		 * so we need to take the reciprocal to get the pole
+		 * for an inverse chebyshev filter.
+		 * p = 1 / s = 1 / (sigma + j*omega)
+		 * p = (sigma - j * omega) / (sigma^2 + omega^2) */
+		InverseChebyshevLP::sigma[i] /= pow (InverseChebyshevLP::poleFreq[i], 2);
+		InverseChebyshevLP::omega[i] /= pow (InverseChebyshevLP::poleFreq[i], 2);
+
+		/* Also invert the pole frequency and scale it by the cutoff frequency */
 		InverseChebyshevLP::poleFreq[i] = InverseChebyshevLP::w0 / InverseChebyshevLP::poleFreq[i];
 	}
 
 	/* Now sort the Q values in ascending order.
 	 * Also sort the pole frequencies with their corresponding Q */
-	for (i = 0; i < InverseChebyshevLP::quads - 1; ++i) {
-		/* If a stage with a smaller Q is found after the current stage */
-		if (InverseChebyshevLP::Q[i + 1] < InverseChebyshevLP::Q[i]) {
-				temp = InverseChebyshevLP::Q[i];
-				InverseChebyshevLP::Q[i] = InverseChebyshevLP::Q[i+1];
-				InverseChebyshevLP::Q[i+1] = temp;
+//	for (i = 0; i < InverseChebyshevLP::quads - 1; ++i) {
+//		/* If a stage with a smaller Q is found after the current stage */
+//		if (InverseChebyshevLP::Q[i + 1] < InverseChebyshevLP::Q[i]) {
+//				temp = InverseChebyshevLP::Q[i];
+//				InverseChebyshevLP::Q[i] = InverseChebyshevLP::Q[i+1];
+//				InverseChebyshevLP::Q[i+1] = temp;
 
-				temp = InverseChebyshevLP::poleFreq[i];
-				InverseChebyshevLP::poleFreq[i] = InverseChebyshevLP::poleFreq[i+1];
-				InverseChebyshevLP::poleFreq[i+1] = temp;
-		}
-	}
+//				temp = InverseChebyshevLP::poleFreq[i];
+//				InverseChebyshevLP::poleFreq[i] = InverseChebyshevLP::poleFreq[i+1];
+//				InverseChebyshevLP::poleFreq[i+1] = temp;
+//		}
+//	}
 
 	/* Now calculate the coefficients */
 	/* If the order is even there are no linear factors */
 	if (n % 2 == 0) {
+		/* Sort the Q values in ascending order
+		 * Also sort the pole frequencies with their corresponding Q */
+		for (i = 0; i <  InverseChebyshevLP::quads - 1; ++i) {
+			if (InverseChebyshevLP::Q[i + 1] < InverseChebyshevLP::Q[i]) {
+				temp = InverseChebyshevLP::Q[i];
+				InverseChebyshevLP::Q[i] = InverseChebyshevLP::Q[i + 1];
+				InverseChebyshevLP::Q[i + 1] = temp;
+
+				temp = InverseChebyshevLP::poleFreq[i];
+				InverseChebyshevLP::poleFreq[i] = InverseChebyshevLP::Q[i + 1];
+				InverseChebyshevLP::Q[i + 1] = temp;
+			}
+		}
+
+		/* Now calculate the coefficients */
 		for (i = 0; i < InverseChebyshevLP::quads; ++i) {
 			InverseChebyshevLP::coefficients[i][0] = 1;
 			InverseChebyshevLP::coefficients[i][1] = InverseChebyshevLP::poleFreq[i] /
@@ -1029,6 +1057,26 @@ InverseChebyshevLP::calcCoefficients ()
 
 	/* Otherwise the order is odd and there will be a linear factor */
 	else {
+		/* Make sure that the linear factor (Q = .5) is first */
+		for (i = 0; i < InverseChebyshevLP::quads; ++i) {
+			if (InverseChebyshevLP::Q[i] == .5) {
+				if (i == 0) {
+					break;
+				}
+				else {
+					temp = InverseChebyshevLP::Q[i];
+					InverseChebyshevLP::Q[i] = InverseChebyshevLP::Q[0];
+					InverseChebyshevLP::Q[0] = temp;
+
+					temp = InverseChebyshevLP::poleFreq[i];
+					InverseChebyshevLP::poleFreq[i] = InverseChebyshevLP::poleFreq[0];
+					InverseChebyshevLP::poleFreq[0] = temp;
+					break;
+				}
+			}
+		}
+
+		/* Now calculate the coefficients */
 		InverseChebyshevLP::coefficients[0][0] = 0;
 		InverseChebyshevLP::coefficients[0][1] = 1;
 		InverseChebyshevLP::coefficients[0][2] = InverseChebyshevLP::poleFreq[0];
@@ -1047,7 +1095,7 @@ InverseChebyshevLP::calcCoefficients ()
 	 * zeros as there are poles.
 	 * If the order is odd then there will be one fewer zeros than poles
 	 * since the linear factor in the denominator does not have
-	 * a corresponding pole. */
+	 * a corresponding zero. */
 	if (n % 2 == 0) {
 		for (i = 0; i < InverseChebyshevLP::quads; ++i) {
 			InverseChebyshevLP::zeroFreq[i] = InverseChebyshevLP::w0 / cos (((2 * (i + 1) - 1) / (2 * (double)n)) * M_PI);
@@ -1116,7 +1164,7 @@ InverseChebyshevLP::calcCoefficients ()
 				InverseChebyshevLP::numerator[i+1][1] = tempArray[1];
 				InverseChebyshevLP::numerator[i+1][2] = tempArray[2];
 		}
-	}
+	}	
 
 	/* Now the transfer function should be fully calculated */
 }

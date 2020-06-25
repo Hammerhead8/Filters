@@ -130,22 +130,24 @@ ChebyshevHP
 
 /* Class for Inverse Chebyshev filter
  * n is the order of the filter
- * cutoffFreq is the cutoff frequency of the filter
- * max is the maximum stopband gain */
+ * cutoffFreq is the cutoff frequency of the filter in rad/s
+ * passGain is the desired passband gain in dB
+ * min is the minimum stopband attenuation in dB */
 class
 InverseChebyshevLP
 {
 	public:
-		InverseChebyshevLP (int n, double cutoffFreq, double max);
+		InverseChebyshevLP (int n, double cutoffFreq, double passGain,  double max);
 		void filterPrintf ();
 		void calcCoefficients ();
 
 	private:
-		int order;
-		int quads;
-		double epsilon;
-		double aMin; /* minimum stopband gain */
+		int order; /* Order of the filter */
+		int quads; /* Number of factors in the denominator */
+		double epsilon; /* Damping factor */
+		double aMin; /* minimum stopband attenuation */
 		double w0; /* Cutoff frequency */
+		double passbandGain;
 		std::vector<double> sigma; /* Real part of the poles */
 		std::vector<double> omega; /* Imaginary part of the poles */
 		std::vector<double> poleFreq; /* The pole frequencies */
