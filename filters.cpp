@@ -901,10 +901,10 @@ ChebyshevHP::calcCoefficients ()
  */
 
 /* Class constructor */
-InverseChebyshevLP::InverseChebyshevLP (int n, double cutoffFreq, double passGain, double min)
+InverseChebyshevLP::InverseChebyshevLP (int n, double cutoffFreq, double passGain,
+					double aMin, double aMax)
 {
 	int i;
-	double CnNumerator, CnDenominator;
 
 	if (n % 2 == 0) {
 		quads = n / 2;
@@ -938,7 +938,7 @@ InverseChebyshevLP::InverseChebyshevLP (int n, double cutoffFreq, double passGai
 	zeroFreq.resize (quads);
 
 	/* Initialize the constants */
-	epsilon = 1 / sqrt (pow (10, min / 10) - 1);
+	epsilon = 1 / sqrt (pow (10, aMin / 10) - 1);
 	order = n;
 	aMin = min;
 	w0 = cutoffFreq;
