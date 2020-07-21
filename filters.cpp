@@ -421,7 +421,8 @@ ChebyshevLP::ChebyshevLP (int n, double cutoffFreq, double passGain, double max)
 	aMax = max;
 
 	epsilon = sqrt (pow (10, aMax / 10) - 1);
-	passbandGain = 1 / pow (w0, order);
+	passbandGain = pow (10, passGain / 20) / pow (w0, order);
+//	passbandGain = 1 / pow (w0, order);
 }
 
 /* Print the coefficients */
