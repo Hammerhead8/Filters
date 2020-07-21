@@ -123,10 +123,6 @@ ButterworthLP::calcCoefficients ()
 
 				ButterworthLP::Q[i] = 1 / (2 * cos (ButterworthLP::poleAngles[i]));
 			}
-
-/*			for (i = 0; i < n; ++i) {
-				ButterworthLP::Q[i] = 1 / (2 * cos (ButterworthLP::poleAngles[i]));
-			}*/
 		}
 
 		/* Now calculate the coefficients.
@@ -424,7 +420,7 @@ ChebyshevLP::ChebyshevLP (int n, double cutoffFreq, double passGain, double max)
 	w0 = cutoffFreq;
 	aMax = max;
 
-	epsilon = sqrt (pow (10, max / 10) - 1);
+	epsilon = sqrt (pow (10, aMax / 10) - 1);
 	passbandGain = 1 / pow (w0, order);
 }
 
@@ -630,7 +626,8 @@ ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
 	Q.resize (quads);
 
 	/* Initialize the constants */
-	epsilon = sqrt (pow (10, max / 10) - 1);
+	aMax = max;
+	epsilon = sqrt (pow (10, aMax / 10) - 1);
 
 	/* Note that this is the inverse of
 	 * the gain for the Lowpass Chebyshev */
@@ -894,15 +891,14 @@ ChebyshevHP::calcCoefficients ()
  * for a ChebyshevLP filter, but then their reciprocal is taken.
  * Also, for a ChebyshevLP filter, the maximum passband attenuation is used for
  * calculating epsilon. For an Inverse ChebyshevLP filter, however, the minimum
- * stopband attenuation is used. Another thing is that since an Inverse ChebyshevLP
+ * stopband attenuation is used. Another thing is that since an Inverse Chebyshev
  * filter has ripple in the stopband, there will be zeros in the numerator of
  * the transfer function. There are always as many zeros as there are
- * quadratic factors in the transfer function.
+ * quadratic factors in the denominator.
  */
 
 /* Class constructor */
-InverseChebyshevLP::InverseChebyshevLP (int n, double cutoffFreq, double passGain,
-					double aMin, double aMax)
+InverseChebyshevLP::InverseChebyshevLP (int n, double cutoffFreq, double passGain, double min)
 {
 	int i;
 
@@ -934,15 +930,17 @@ InverseChebyshevLP::InverseChebyshevLP (int n, double cutoffFreq, double passGai
 	poleFreq.resize (quads);
 	Q.resize (quads);
 	M.resize (quads);
-	k.resize (quads);
 	zeroFreq.resize (quads);
 
 	/* Initialize the constants */
-	epsilon = 1 / sqrt (pow (10, aMin / 10) - 1);
 	order = n;
 	aMin = min;
+	epsilon = 1 / sqrt (pow (10, aMin / 10) - 1);
 	w0 = cutoffFreq;
-	passbandGain = pow (10, passGain / 20);
+
+	/* Convert the desired passband gain from dB to linear */
+	passGain = pow (10, passGain / 20);
+	passbandGain = passGain;
 }
 
 /* Print the coefficients */
@@ -1014,22 +1012,7 @@ InverseChebyshevLP::calcCoefficients ()
 		InverseChebyshevLP::poleFreq[i] = InverseChebyshevLP::w0 / InverseChebyshevLP::poleFreq[i];
 	}
 
-	/* Now sort the Q values in ascending order.
-	 * Also sort the pole frequencies with their corresponding Q */
-//	for (i = 0; i < InverseChebyshevLP::quads - 1; ++i) {
-//		/* If a stage with a smaller Q is found after the current stage */
-//		if (InverseChebyshevLP::Q[i + 1] < InverseChebyshevLP::Q[i]) {
-//				temp = InverseChebyshevLP::Q[i];
-//				InverseChebyshevLP::Q[i] = InverseChebyshevLP::Q[i+1];
-//				InverseChebyshevLP::Q[i+1] = temp;
-
-//				temp = InverseChebyshevLP::poleFreq[i];
-//				InverseChebyshevLP::poleFreq[i] = InverseChebyshevLP::poleFreq[i+1];
-//				InverseChebyshevLP::poleFreq[i+1] = temp;
-//		}
-//	}
-
-	/* Now calculate the coefficients */
+	/* Now sort the Q values in ascending order */
 	/* If the order is even there are no linear factors */
 	if (n % 2 == 0) {
 		/* Sort the Q values in ascending order
@@ -1164,7 +1147,19 @@ InverseChebyshevLP::calcCoefficients ()
 				InverseChebyshevLP::numerator[i+1][1] = tempArray[1];
 				InverseChebyshevLP::numerator[i+1][2] = tempArray[2];
 		}
-	}	
+	}
+
+	/* The last step is to calculate the gain.
+	 * To do this we will start with K = 1
+	 * We will then multiply all of the constant terms in the numerator factors
+	 * and divide by the product of all of the constant terms in the denominator factors
+	 * Finally we will divide this result by the scaling factor for the cutoff frequency */
+	for (i = 0; i < InverseChebyshevLP::quads; ++i) {
+		InverseChebyshevLP::K *= InverseChebyshevLP::numerator[i][2];
+		InverseChebyshevLP::K /= InverseChebyshevLP::coefficients[i][2];
+	}
+
+	InverseChebyshevLP::passbandGain /= InverseChebyshevLP::K;
 
 	/* Now the transfer function should be fully calculated */
 }
