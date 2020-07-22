@@ -568,7 +568,7 @@ ChebyshevLP::calcCoefficients ()
  * Chebyshev Highpass *
  **********************/
 
-/* Note for ChebyshevLP filters:
+/* Note for ChebyshevHP filters:
  * The coefficients are calculated for unity cutoff frequency.
  * To find the transfer function of a filter for cutoff frequencies other than
  * unity, simply multiply the calculated pole frequencies by the desired cutoff
@@ -577,10 +577,7 @@ ChebyshevLP::calcCoefficients ()
  * For example:  For a fifth order filter with aMax = .5 dB
  * T(s) = .1789 / [(s + .36232)(s^2 + .5862s + .47677)(s^2 + .22393s + 1.0358)]
  * For a cutoff frequency of 1000 rad/s, the transfer function would be
- * T(s) = .1789 / [(s + 362.32)(s^2 + 586.2s + 476.77)(s^2 + 223.93s + 1035.8)]
- *
- * TODO:  Currently gives incorrect coefficients and gain values for filter
- *	  orders greater than 2. */
+ * T(s) = .1789 / [(s + 362.32)(s^2 + 586.2s + 476.77)(s^2 + 223.93s + 1035.8)] */
 
 /* Class constructor */
 ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
@@ -630,11 +627,17 @@ ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
 	aMax = max;
 	epsilon = sqrt (pow (10, aMax / 10) - 1);
 
-	/* Note that this is the inverse of
-	 * the gain for the Lowpass Chebyshev */
-	passbandGain = pow (w0, order);
-
-	std::cout << passbandGain << std::endl;
+	/* Calculate the passband gain of the filter.
+	 * This is done by converting the passband attenuation
+	 * from dB to linear and dividing by w0^order.
+	 * The cutoff frequency raised to the order is used
+	 * to scale the gain with respect to the cutoff frequency.
+	 * This is done because otherwise the gain will be
+	 * greater than the desired value for cutoff frequencies
+	 * greater than 1 rad/s and less than the desired value
+	 * for cutoff frequencies less than 1 rad/s. */
+	passbandGain = pow (10, passGain / 20) / pow (w0, order);
+//	std::cout << passbandGain << std::endl;
 }
 
 /* Print the coefficients */
@@ -872,14 +875,15 @@ ChebyshevHP::calcCoefficients ()
 		}
 	}
 
-	/* The coefficients should now be fully calculated.
-	 * The only thing left to find is the numerator.
-	 * This is found using the following:
-	 * gain = w_0 / (2^(n - 1) * epsilon)
-	 * This is then divided by gainMult calculated above */
-	ChebyshevHP::gain = 1 / (pow (2, n - 1) * ChebyshevHP::epsilon);
+	/* The only thing left to find is the numerator.
+	 * We will use the passband gain calculated in the
+	 * class constructor and the value of gainMult we
+	 * calculated above when we performed the lowpass-highpass
+	 * transform. The expression for the numerator is:
+	 * gain = passbandGain / (2^(n - 1) * epsilon * gainMult) */
+	ChebyshevHP::gain = ChebyshevHP::passbandGain;
+	ChebyshevHP::gain /= (pow (2, n - 1) * ChebyshevHP::epsilon);
 	ChebyshevHP::gain /= gainMult;
-	ChebyshevHP::gain /= ChebyshevHP::passbandGain;
 
 	/* Now everything should be fully calculated */
 }
