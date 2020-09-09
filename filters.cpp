@@ -71,7 +71,7 @@ ButterworthLP::ButterworthLP (int n, double cutoffFreq, double max)
 	gain = pow (10, max / 20);
 }
 
-/* Print the coefficients */
+/* Print the numerator and denominator coefficients of the transfer function */
 void
 ButterworthLP::filterPrintf ()
 {
@@ -79,12 +79,12 @@ ButterworthLP::filterPrintf ()
 
 	std::cout << "Butterworth Lowpass:" << std::endl;
 
-	std::cout << std::endl;
+	/* Print the gain */
+	std::cout << "Gain = " << ButterworthLP::gain << std::endl;
 
-	std::cout << "Numerator: " << ButterworthLP::gain << std::endl;
+	std::cout <<std::endl;
 
-	std::cout << std::endl;
-
+	/* Print the denominators */
 	std::cout << "Denominator:" << std::endl;
 
 	for (i = 0; i < ButterworthLP::quads; ++i) {
@@ -94,6 +94,7 @@ ButterworthLP::filterPrintf ()
 
 		std::cout << std::endl;
 	}
+
 	std::cout << std::endl;
 }
 
@@ -139,31 +140,41 @@ ButterworthLP::calcCoefficients ()
 	else {
 		n = ButterworthLP::quads;
 
-		/* Calculate the pole angles, Q values, and numerator */
+		/* Calculate the pole angles, Q values, and the linear factor */
 		ButterworthLP::poleAngles[0] = 0;
 		ButterworthLP::Q[0] = .5;
 
+		ButterworthLP::coefficients[0][0] = 0;
+		ButterworthLP::coefficients[0][1] = 1;
+		ButterworthLP::coefficients[0][2] = ButterworthLP::w0;
+
+		/* Now calculate the quadratic factors */
 		if (n > 1) {
 			for (i = 1; i < n; ++i) {
 				ButterworthLP::poleAngles[i] = i * M_PI / ButterworthLP::order;
 				ButterworthLP::Q[i] = 1 / (2 * cos (ButterworthLP::poleAngles[i]));
+
+				ButterworthLP::coefficients[i][0] = 1;
+				ButterworthLP::coefficients[i][1] = ButterworthLP::w0 /
+									ButterworthLP::Q[i];
+				ButterworthLP::coefficients[i][2] = pow (ButterworthLP::w0, 2);
 			}
 		}
 
 		/* Now calculate the coefficients.
 		 * We will deal with the linear factor first.
 		 * This factor is of the form (s + w0) */
-		ButterworthLP::coefficients[0][0] = 0;
-		ButterworthLP::coefficients[0][1] = 1;
-		ButterworthLP::coefficients[0][2] = ButterworthLP::w0;
+//		ButterworthLP::coefficients[0][0] = 0;
+//		ButterworthLP::coefficients[0][1] = 1;
+//		ButterworthLP::coefficients[0][2] = ButterworthLP::w0;
 
 		/* Now deal with the quadratic factors.
 		 * These are of the form s^2 + (w0 / Q_i)s + w0^2 */
-		for (i = 1; i < n; ++i) {
-			ButterworthLP::coefficients[i][0] = 1;
-			ButterworthLP::coefficients[i][1] = ButterworthLP::w0 / ButterworthLP::Q[i];
-			ButterworthLP::coefficients[i][2] = pow (ButterworthLP::w0, 2);
-		}
+//		for (i = 1; i < n; ++i) {
+//			ButterworthLP::coefficients[i][0] = 1;
+//			ButterworthLP::coefficients[i][1] = ButterworthLP::w0 / ButterworthLP::Q[i];
+//			ButterworthLP::coefficients[i][2] = pow (ButterworthLP::w0, 2);
+//		}
 	}
 
 	/* Finally sort the stages in order of increasing Q */
@@ -315,20 +326,11 @@ ButterworthHP::calcCoefficients ()
 	else {
 		n = ButterworthHP::quads;
 
-		/* Calculate the pole angles, Q values, and numerator */
+		/* Calculate the pole angles, Q values, and numerator for the linear factor
+		 * This factor is of the form (s + w0) */
 		ButterworthHP::poleAngles[0] = 0;
 		ButterworthHP::Q[0] = .5;
 
-		if (n > 1) {
-			for (i = 1; i < n; ++i) {
-				ButterworthHP::poleAngles[i] = i * M_PI / ButterworthHP::order;
-				ButterworthHP::Q[i] = 1 / (2 * cos (ButterworthHP::poleAngles[i]));
-			}
-		}
-
-		/* Now calculate the coefficients.
-		 * We will deal with the linear factor first.
-		 * This factor is of the form (s + w0) */
 		ButterworthHP::coefficients[0][0] = 0;
 		ButterworthHP::coefficients[0][1] = 1;
 		ButterworthHP::coefficients[0][2] = ButterworthHP::w0;
@@ -337,17 +339,46 @@ ButterworthHP::calcCoefficients ()
 		ButterworthHP::numerator[0][1] = 1;
 		ButterworthHP::numerator[0][2] = 0;
 
+		/* If the order is greater than one then calculate the quadratic factors
+		 * These are of the form s^2 + (w0 / Q_i)s + w0^2 */
+		if (n > 1) {
+			for (i = 1; i < n; ++i) {
+				ButterworthHP::poleAngles[i] = i * M_PI / ButterworthHP::order;
+				ButterworthHP::Q[i] = 1 / (2 * cos (ButterworthHP::poleAngles[i]));
+
+				ButterworthHP::coefficients[i][0] = 1;
+				ButterworthHP::coefficients[i][1] = ButterworthHP::w0 /
+									ButterworthHP::Q[i];
+				ButterworthHP::coefficients[i][2] = pow (ButterworthHP::w0, 2);
+
+				ButterworthHP::numerator[i][0] = 1;
+				ButterworthHP::numerator[i][1] = 0;
+				ButterworthHP::numerator[i][2] = 0;
+			}
+		}
+
+		/* Now calculate the coefficients.
+		 * We will deal with the linear factor first.
+		 * This factor is of the form (s + w0) */
+//		ButterworthHP::coefficients[0][0] = 0;
+//		ButterworthHP::coefficients[0][1] = 1;
+//		ButterworthHP::coefficients[0][2] = ButterworthHP::w0;
+
+//		ButterworthHP::numerator[0][0] = 0;
+//		ButterworthHP::numerator[0][1] = 1;
+//		ButterworthHP::numerator[0][2] = 0;
+
 		/* Now deal with the quadratic factors.
 		 * These are of the form s^2 + (w0 / Q_i)s + w0^2 */
-		for (i = 1; i < n; ++i) {
-			ButterworthHP::coefficients[i][0] = 1;
-			ButterworthHP::coefficients[i][1] = ButterworthHP::w0 / ButterworthHP::Q[i];
-			ButterworthHP::coefficients[i][2] = pow (ButterworthHP::w0, 2);
+//		for (i = 1; i < n; ++i) {
+//			ButterworthHP::coefficients[i][0] = 1;
+//			ButterworthHP::coefficients[i][1] = ButterworthHP::w0 / ButterworthHP::Q[i];
+//			ButterworthHP::coefficients[i][2] = pow (ButterworthHP::w0, 2);
 
-			ButterworthHP::numerator[i][0] = 1;
-			ButterworthHP::numerator[i][1] = 0;
-			ButterworthHP::numerator[i][2] = 0;
-		}
+//			ButterworthHP::numerator[i][0] = 1;
+//			ButterworthHP::numerator[i][1] = 0;
+//			ButterworthHP::numerator[i][2] = 0;
+//		}
 	}
 
 	/* Finally sort the stages in order of increasing Q */
@@ -626,6 +657,7 @@ ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
 	/* Initialize the constants */
 	aMax = max;
 	epsilon = sqrt (pow (10, aMax / 10) - 1);
+	gain = 1;
 
 	/* Calculate the passband gain of the filter.
 	 * This is done by converting the passband attenuation
@@ -637,7 +669,6 @@ ChebyshevHP::ChebyshevHP (int n, double cutoffFreq, double passGain, double max)
 	 * greater than 1 rad/s and less than the desired value
 	 * for cutoff frequencies less than 1 rad/s. */
 	passbandGain = pow (10, passGain / 20) / pow (w0, order);
-//	std::cout << passbandGain << std::endl;
 }
 
 /* Print the coefficients */
@@ -946,6 +977,7 @@ InverseChebyshevLP::InverseChebyshevLP (int n, double cutoffFreq, double passGai
 	/* Convert the desired passband gain from dB to linear */
 	passGain = pow (10, passGain / 20);
 	passbandGain = passGain;
+	K = 1;
 }
 
 /* Print the coefficients */
