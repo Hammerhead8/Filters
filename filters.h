@@ -118,7 +118,8 @@ ChebyshevHP
 		double epsilon; /* Damping factor */
 		double aMax; /* Maximum attenuation in dB */
 		double w0; /* Cutoff frequency */
-		double gain; /* Gain of the filter */
+//		double gain = 1; /* Gain of the filter */
+		double gain;
 		double passbandGain; /* Factor by which to divide numerator to get desired gain */
 		std::vector<double> sigma; /* Real part of the poles */
 		std::vector<double> omega; /* Imaginary part of the poles */
@@ -148,7 +149,8 @@ InverseChebyshevLP
 		double aMin; /* minimum stopband attenuation */
 		double w0; /* Cutoff frequency */
 		double passbandGain;
-		double K = 1;
+//		double K = 1;
+		double K;
 		std::vector<double> sigma; /* Real part of the poles */
 		std::vector<double> omega; /* Imaginary part of the poles */
 		std::vector<double> poleFreq; /* The pole frequencies */
