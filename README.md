@@ -22,6 +22,7 @@ to include Chebyshev and Inverse Chebyshev filters.
 * Filter stages are sorted by increasing Q for optimal cascade design
 * Simple programming interface consisting of two functions
 * Only requires standard math library and vectors
+* Compatible with C++03
 
 # Limitations
 * Currently has no error handling for invalid specifications (non-integer or negative order, etc.)
@@ -31,7 +32,6 @@ to include Chebyshev and Inverse Chebyshev filters.
 # Planned Features
 * Bandpass filters
 * Arbitrary transmission zeros for lowpass and highpass
-* Arbitrary passband gain
 * Highpass Inverse Chebyshev filters
 * Error handling
 
