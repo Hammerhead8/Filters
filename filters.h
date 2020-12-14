@@ -129,7 +129,7 @@ ChebyshevHP
 		std::vector < std::vector<double> > numerator; /* Numerator of the transfer function */
 };
 
-/* Class for Inverse Chebyshev filter
+/* Class for Inverse Chebyshev lowpass filter
  * n is the order of the filter
  * cutoffFreq is the cutoff frequency of the filter in rad/s
  * passGain is the desired passband gain in dB
@@ -139,6 +139,38 @@ InverseChebyshevLP
 {
 	public:
 		InverseChebyshevLP (int n, double cutoffFreq, double passGain, double min);
+		void filterPrintf ();
+		void calcCoefficients ();
+
+	private:
+		int order; /* Order of the filter */
+		int quads; /* Number of factors in the denominator */
+		double epsilon; /* Damping factor */
+		double aMin; /* minimum stopband attenuation */
+		double w0; /* Cutoff frequency */
+		double passbandGain;
+//		double K = 1;
+		double K;
+		std::vector<double> sigma; /* Real part of the poles */
+		std::vector<double> omega; /* Imaginary part of the poles */
+		std::vector<double> poleFreq; /* The pole frequencies */
+		std::vector<double> Q; /* Q values of the poles */
+		std::vector<double> M; /* Maximum values of each stage's output */
+		std::vector<double> zeroFreq; /* The frequencies of the zeros */
+		std::vector< std::vector<double> > numerator; /* Numerator in factored form */
+		std::vector< std::vector<double> > coefficients; /* Denominator in factored form */
+};
+
+/* Class for Inverse Chebyshev highpass filter
+ * n is the order of the filter
+ * cutoffFreq is the cutoff frequency of the filter in rad/s
+ * passGain is the desired passband gain in dB
+ * min is the minimum stopband attenuation in dB (gain reduction from passband to stopband) */
+class
+InverseChebyshevHP
+{
+	public:
+		InverseChebyshevHP (int n, double cutoffFreq, double passGain, double min);
 		void filterPrintf ();
 		void calcCoefficients ();
 
