@@ -256,6 +256,8 @@ ButterworthHP::filterPrintf ()
 	std::cout << "Butterworth Highpass:" << std::endl;
 
 	/* Print the numerators */
+	std::cout << "Gain = " << ButterworthHP::gain << std::endl;
+
 	std::cout << "Numerator:" << std::endl;
 
 	for (i = 0; i < ButterworthHP::quads; ++i) {
@@ -265,8 +267,6 @@ ButterworthHP::filterPrintf ()
 
 		std::cout << std::endl;
 	}
-
-	std::cout << "Gain = " << ButterworthHP::gain << std::endl;
 
 	std::cout <<std::endl;
 
@@ -680,6 +680,8 @@ ChebyshevHP::filterPrintf ()
 	std::cout << "Chebyshev highpass:\n\n";
 
 	/* Print the numerator */
+	std::cout << "Gain = " << ChebyshevHP::gain << "\n\n";
+
 	std::cout << "Numerator:" << std::endl;
 
 	for (i = 0; i < ChebyshevHP::quads; ++i) {
@@ -689,8 +691,6 @@ ChebyshevHP::filterPrintf ()
 
 		std::cout << std::endl;
 	}
-
-	std::cout << "Gain = " << ChebyshevHP::gain << "\n\n";
 
 	/* Print the denominator */
 	std::cout << "Denominator:" << std::endl;
@@ -988,6 +988,8 @@ InverseChebyshevLP::filterPrintf ()
 
 	std::cout << "Inverse ChebyshevLP:" << std::endl;
 
+	std::cout << "Gain = " << InverseChebyshevLP::passbandGain << std::endl;
+
 	std::cout << "Numerators:" << std::endl;
 
 	for (i = 0; i < InverseChebyshevLP::quads; ++i) {
@@ -996,8 +998,6 @@ InverseChebyshevLP::filterPrintf ()
 		}
 		std::cout << "\n";
 	}
-
-	std::cout << "Gain = " << InverseChebyshevLP::passbandGain << std::endl;
 
 	std::cout << "\nDenominators:" << std::endl;
 
