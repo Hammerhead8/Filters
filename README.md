@@ -48,6 +48,8 @@ The classes for the available filter types are as follows:
 	* Highpass Chebyshev
 * InverseChebyshevLP
 	* Lowpass Inverse Chebyshev
+* InverseChebyshevHP
+	* Highpass Inverse Chebyshev
 
 An example for a fifth order lowpass Butterworth filter with a cutoff frequency of 1 rad/s and a passband gain of 0 dB would be as follows:
 
