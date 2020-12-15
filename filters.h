@@ -181,8 +181,8 @@ InverseChebyshevHP
 		double aMin; /* minimum stopband attenuation */
 		double w0; /* Cutoff frequency */
 		double passbandGain;
-//		double K = 1;
-		double K;
+		double K = 1;
+//		double K;
 		std::vector<double> sigma; /* Real part of the poles */
 		std::vector<double> omega; /* Imaginary part of the poles */
 		std::vector<double> poleFreq; /* The pole frequencies */

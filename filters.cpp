@@ -975,8 +975,8 @@ InverseChebyshevLP::InverseChebyshevLP (int n, double cutoffFreq, double passGai
 	w0 = cutoffFreq;
 
 	/* Convert the desired passband gain from dB to linear */
-	passGain = pow (10, passGain / 20);
-	passbandGain = passGain;
+	passbandGain = pow (10, passGain / 20);
+//	passbandGain = passGain;
 	K = 1;
 }
 
@@ -1223,6 +1223,7 @@ InverseChebyshevHP::InverseChebyshevHP (int n, double cutoffFreq, double passGai
 	else {
 		quads = (n + 1) / 2;
 
+		/* Numerator has an extra row because the lowpass to highpass transformation introduces a zero to the transfer function */
 		coefficients.resize (quads);
 		numerator.resize (quads + 1);
 
@@ -1230,6 +1231,8 @@ InverseChebyshevHP::InverseChebyshevHP (int n, double cutoffFreq, double passGai
 			coefficients[i].resize (3);
 			numerator[i].resize (3);
 		}
+
+		numerator[quads].resize (3);
 	}
 
 	sigma.resize (quads);
@@ -1246,8 +1249,8 @@ InverseChebyshevHP::InverseChebyshevHP (int n, double cutoffFreq, double passGai
 	w0 = cutoffFreq;
 
 	/* Convert the desired passband gain from dB to linear */
-	passGain = pow (10, passGain / 20);
-	passbandGain = passGain;
+	passbandGain = pow (10, passGain / 20);
+//	passbandGain = passGain;
 	K = 1;
 }
 
@@ -1261,12 +1264,26 @@ InverseChebyshevHP::filterPrintf ()
 
 	std::cout << "Numerators:" << std::endl;
 
-	for (i = 0; i < InverseChebyshevHP::quads; ++i) {
-		for (j = 0; j < 3; ++j) {
-			std::cout << InverseChebyshevHP::numerator[i][j] << " ";
+	/* If the order is even then there is no introduced zero to worry about printing */
+	if (InverseChebyshevHP::order % 2 == 0) {
+		for (i = 0; i < InverseChebyshevHP::quads; ++i) {
+			for (j = 0; j < 3; ++j) {
+				std::cout << InverseChebyshevHP::numerator[i][j] << " ";
+			}
+	
+			std::cout << std::endl;
 		}
+	}
 
-		std::cout << std::endl;
+	/* Otherwise the order is odd and we need to print the introduced zero */
+	else {
+		for (i = 0; i < InverseChebyshevHP::quads + 1; ++i) {
+			for (j = 0; j < 3; ++j) {
+				std::cout << InverseChebyshevHP::numerator[i][j] << " ";
+			}
+	
+			std::cout << std::endl;
+		}
 	}
 
 	std::cout << "Gain = " << InverseChebyshevHP::passbandGain << std::endl << std::endl;
@@ -1461,7 +1478,19 @@ InverseChebyshevHP::calcCoefficients ()
 		}
 	}
 
-	/* The next step is to perform the lowpass-to-highpass transformation.
+	/* The next step is to calculate the gain.
+	 * To do this we will start with K = 1
+	 * We will then multiply all of the constant terms in the numerator factors
+	 * and divide by the product of all of the constant terms in the denominator factors
+	 * Finally we will divide this result by the scaling factor for the cutoff frequency */
+	for (i = 0; i < InverseChebyshevHP::quads; ++i) {
+		InverseChebyshevHP::K *= InverseChebyshevHP::numerator[i][2];
+		InverseChebyshevHP::K /= InverseChebyshevHP::coefficients[i][2];
+	}
+
+	InverseChebyshevHP::passbandGain /= InverseChebyshevHP::K;
+
+	/* The last step is to perform the lowpass-to-highpass transformation.
 	 * This is done by taking the lowpass transfer function T_L(S) and
 	 * substituting s = 1/S to get T_H(s). That is:  T_H(s) = T_L(1/s).
 	 *
@@ -1487,24 +1516,40 @@ InverseChebyshevHP::calcCoefficients ()
 
 	/* If the order of the filter is even then there is no linear term to deal with */
 	if (n % 2 == 0) {
+		InverseChebyshevHP::K = 1;
+
 		for (i = 0; i < InverseChebyshevHP::quads; ++i) {
-			/* Swap the first and third and coefficients of each factor */
+			/* Swap the first and third and coefficients of each factor in the numerator and denominator */
 			tempNum = InverseChebyshevHP::coefficients[i][0];
 			InverseChebyshevHP::coefficients[i][0] = InverseChebyshevHP::coefficients[i][2];
 			InverseChebyshevHP::coefficients[i][2] = tempNum;
 
-			/* Put the factor in the form s^2 + b*s + c */
-			quadTerm = InverseChebyshevHP::coefficients[i][0];
-			InverseChebyshevHP::coefficients[i][0] = 1;
-			InverseChebyshevHP::coefficients[i][1] /= InverseChebyshevHP::coefficients[i][0];
-			InverseChebyshevHP::coefficients[i][2] /= InverseChebyshevHP::coefficients[i][0];
+			tempNum = InverseChebyshevHP::numerator[i][0];
+			InverseChebyshevHP::numerator[i][0] = InverseChebyshevHP::numerator[i][2];
+			InverseChebyshevHP::numerator[i][2] = tempNum;
 
-			gainMult *= quadTerm;
+			/* Put the factors in the form s^2 + b*s + c starting with the denominator */
+			quadTerm = InverseChebyshevHP::coefficients[i][0];
+			InverseChebyshevHP::coefficients[i][0] /= quadTerm;
+			InverseChebyshevHP::coefficients[i][1] /= quadTerm;
+			InverseChebyshevHP::coefficients[i][2] /= quadTerm;
+
+			InverseChebyshevHP::K /= quadTerm;
+
+			/* Now do the same for the numerator */
+			quadTerm = InverseChebyshevHP::numerator[i][0];
+			InverseChebyshevHP::numerator[i][0] /= quadTerm;
+			InverseChebyshevHP::numerator[i][1] = 0;
+			InverseChebyshevHP::numerator[i][2] /= quadTerm;
+
+			InverseChebyshevHP::K *= quadTerm;
 		}
 	}
 
 	/* Otherwise the order is odd and we need to deal with a linear factor */
 	else {
+		InverseChebyshevHP::K = 1;
+
 		/* First deal with the linear term */
 		tempNum = InverseChebyshevHP::coefficients[0][1];
 		InverseChebyshevHP::coefficients[0][1] = InverseChebyshevHP::coefficients[0][2];
@@ -1514,38 +1559,46 @@ InverseChebyshevHP::calcCoefficients ()
 
 		/* Put the factor in the form s + b */
 		InverseChebyshevHP::coefficients[0][1] = 1;
-		InverseChebyshevHP::coefficients[0][2] /= InverseChebyshevHP::coefficients[0][1];
+		InverseChebyshevHP::coefficients[0][2] /= quadTerm;
 
-		gainMult *= quadTerm;
+		InverseChebyshevHP::K /= quadTerm;
 
 		/* Now deal with the quadratic terms */
 		for (i = 1; i < InverseChebyshevHP::quads; ++i) {
-			/* Swap the first and third and coefficients of each factor */
+			/* Swap the first and third and coefficients of each factor in the numerator and denominator */
 			tempNum = InverseChebyshevHP::coefficients[i][0];
 			InverseChebyshevHP::coefficients[i][0] = InverseChebyshevHP::coefficients[i][2];
 			InverseChebyshevHP::coefficients[i][2] = tempNum;
 
-			/* Put the factor in the form s^2 + b*s + c */
+			tempNum = InverseChebyshevHP::numerator[i][0];
+			InverseChebyshevHP::numerator[i][0] = InverseChebyshevHP::numerator[i][2];
+			InverseChebyshevHP::numerator[i][2] = tempNum;
+
+			/* Put the factors in the form s^2 + b*s + c starting with the denominator */
 			quadTerm = InverseChebyshevHP::coefficients[i][0];
-			InverseChebyshevHP::coefficients[i][0] = 1;
-			InverseChebyshevHP::coefficients[i][1] /= InverseChebyshevHP::coefficients[i][0];
-			InverseChebyshevHP::coefficients[i][2] /= InverseChebyshevHP::coefficients[i][0];
+			InverseChebyshevHP::coefficients[i][0] /= quadTerm;
+			InverseChebyshevHP::coefficients[i][1] /= quadTerm;
+			InverseChebyshevHP::coefficients[i][2] /= quadTerm;
 
-			gainMult *= quadTerm;
+			InverseChebyshevHP::K /= quadTerm;
+
+			/* Now do the same for the numerator */
+			quadTerm = InverseChebyshevHP::numerator[i][0];
+			InverseChebyshevHP::numerator[i][0] = 1;
+			InverseChebyshevHP::numerator[i][1] = 0;
+			InverseChebyshevHP::numerator[i][2] /= quadTerm;
+
+			InverseChebyshevHP::K *= quadTerm;
 		}
-	}			
 
-	/* The last step is to calculate the gain.
-	 * To do this we will start with K = 1
-	 * We will then multiply all of the constant terms in the numerator factors
-	 * and divide by the product of all of the constant terms in the denominator factors
-	 * Finally we will divide this result by the scaling factor for the cutoff frequency */
-	for (i = 0; i < InverseChebyshevHP::quads; ++i) {
-		InverseChebyshevHP::K *= InverseChebyshevHP::numerator[i][2];
-		InverseChebyshevHP::K /= InverseChebyshevHP::coefficients[i][2];
+		InverseChebyshevHP::numerator[i][0] = 0;
+		InverseChebyshevHP::numerator[i][1] = 1;
+		InverseChebyshevHP::numerator[i][2] = 0;
+
+		InverseChebyshevHP::numerator[i].swap (InverseChebyshevHP::numerator[0]);
 	}
 
-	InverseChebyshevHP::passbandGain /= InverseChebyshevHP::K;
+	InverseChebyshevHP::passbandGain *= InverseChebyshevHP::K;			
 
 	/* Now the transfer function should be fully calculated */
 }
