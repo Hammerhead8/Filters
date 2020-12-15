@@ -986,7 +986,7 @@ InverseChebyshevLP::filterPrintf ()
 {
 	int i, j;
 
-	std::cout << "Inverse ChebyshevLP:" << std::endl;
+	std::cout << "Inverse Chebyshev lowpass:" << std::endl;
 
 	std::cout << "Numerators:" << std::endl;
 
