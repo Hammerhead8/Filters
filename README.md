@@ -34,6 +34,7 @@ to include Chebyshev and Inverse Chebyshev filters.
 * Arbitrary passband gain
 * Highpass Inverse Chebyshev filters
 * Error handling
+* Ability to cascade filters
 
 # Usage
 The classes for the available filter types are as follows:
