@@ -34,7 +34,7 @@ to include Chebyshev and Inverse Chebyshev filters.
 * Arbitrary transmission zeros for lowpass and highpass
 * Highpass Inverse Chebyshev filters
 * Error handling
-* Cascading filters
+* Ability to cascade filters
 
 # Usage
 The classes for the available filter types are as follows:
