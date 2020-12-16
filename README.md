@@ -6,6 +6,7 @@ Currently the following filter types are supported:
 * Lowpass Chebyshev
 * Highpass Chebyshev
 * Lowpass Inverse Chebyshev
+* Highpass Inverse Chebyhsev
 
 This allows the tranfer function of common filter classes to be calculated much faster than could be done by hand and without the need to consult tables.
 
