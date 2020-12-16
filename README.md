@@ -31,7 +31,6 @@ to include Chebyshev and Inverse Chebyshev filters.
 # Planned Features
 * Bandpass filters
 * Arbitrary transmission zeros for lowpass and highpass
-* Arbitrary passband gain
 * Highpass Inverse Chebyshev filters
 * Error handling
 * Ability to cascade filters
