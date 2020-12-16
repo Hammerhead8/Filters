@@ -17,8 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  *
- * TODO:  Implement highpass Inverse Chebyshev filters.
- *	  Implement bandpass Butterworth filters.
+ * TODO:  Implement bandpass Butterworth filters.
 	  Implement positive passband gain for Chebyshev filters. */
 #include <iostream>
 #include <cmath>
