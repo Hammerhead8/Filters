@@ -710,7 +710,7 @@ ChebyshevHP::calcCoefficients ()
 	int i, j;
 	int n;
 	double a, sinhA, coshA;
-	double quad_term, gainMult = 1;
+	double quad_term, gain_mult = 1;
 	double temp_num;
 	std::vector<double> temp (3);
 
@@ -907,10 +907,10 @@ ChebyshevHP::calcCoefficients ()
 
 	/* The only thing left to find is the numerator.
 	 * We will use the passband gain calculated in the
-	 * class constructor and the value of gainMult we
+	 * class constructor and the value of gain_mult we
 	 * calculated above when we performed the lowpass-highpass
 	 * transform. The expression for the numerator is:
-	 * gain = passband_gain / (2^(n - 1) * epsilon * gainMult) */
+	 * gain = passband_gain / (2^(n - 1) * epsilon * gain_mult) */
 	this->gain = this->passband_gain;
 	this->gain /= (pow (2, n - 1) * this->epsilon);
 	this->gain /= gain_mult;
@@ -960,12 +960,12 @@ InverseChebyshevLP::InverseChebyshevLP (int n, double cutoff_freq, double pass_g
 		}
 	}
 
-	this->sigma.resize (quads);
-	this->omega.resize (quads);
-	this->pole_freq.resize (quads);
-	this->Q.resize (quads);
-	this->M.resize (quads);
-	this->zero_freq.resize (quads);
+	this->sigma.resize (this->quads);
+	this->omega.resize (this->quads);
+	this->pole_freq.resize (this->quads);
+	this->Q.resize (this->quads);
+	this->M.resize (this->quads);
+	this->zero_freq.resize (this->quads);
 
 	/* Initialize the constants */
 	this->order = n;
@@ -987,6 +987,9 @@ InverseChebyshevLP::filterPrintf ()
 
 	std::cout << "Inverse Chebyshev lowpass:" << std::endl;
 
+	/* Print the numerator */
+	std::cout << "Gain = " << this->passband_gain << std::endl;
+
 	std::cout << "Numerators:" << std::endl;
 
 	for (i = 0; i < this->quads; ++i) {
@@ -995,8 +998,6 @@ InverseChebyshevLP::filterPrintf ()
 		}
 		std::cout << "\n";
 	}
-
-	std::cout << "Gain = " << this->passband_gain << std::endl;
 
 	std::cout << "\nDenominators:" << std::endl;
 
@@ -1310,7 +1311,7 @@ InverseChebyshevHP::calcCoefficients ()
 	int term;
 	double temp_num;
 	double quad_term;
-	double gainMult = 1;
+	double gain_mult = 1;
 	std::vector<double> temp_array (3);
 
 	a = asinh (1 / this->epsilon) / this->order;
