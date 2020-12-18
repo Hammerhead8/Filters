@@ -90,7 +90,7 @@ ChebyshevLP
 		double a_max; /* Maximum atenuation in dB */
 		double w0; /* Cutoff frequency */
 //		double passbandGain; /* Passband gain of the function before ripple starts */
-		double passband-gain; /* Gain in the passband */
+		double passband_gain; /* Gain in the passband */
 		double numerator; /* Numerator of the transfer function */
 		std::vector<double> sigma; /* Real part of the poles */
 		std::vector<double> omega; /* Imaginary part of the poles */
