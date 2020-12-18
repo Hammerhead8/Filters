@@ -28,6 +28,7 @@ to include Chebyshev and Inverse Chebyshev filters.
 * Currently has no error handling for invalid specifications (non-integer or negative order, etc.)
 * No intention to support circuit design
 * Can't specify seperate passband and stopband frequencies for Chebyshev filters
+* Filters cannot be cascaded
 
 # Planned Features
 * Bandpass filters
