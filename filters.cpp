@@ -40,10 +40,10 @@ ButterworthLP::ButterworthLP (int n, double cutoff_freq, double max)
 	if (n % 2 == 0) {
 		this->quads = n / 2;
 
-		this->pole_angles.resize (quads);
-		this->Q.resize (quads);
+		this->pole_angles.resize (this->quads);
+		this->Q.resize (this->quads);
 
-		this->coefficients.resize (quads);
+		this->coefficients.resize (this->quads);
 
 		for (i = 0; i < this->quads; ++i) {
 			this->coefficients[i].resize (3);
@@ -54,10 +54,10 @@ ButterworthLP::ButterworthLP (int n, double cutoff_freq, double max)
 	else {
 		this->quads = (n + 1) / 2;
 
-		this->pole_angles.resize (quads);
-		this->Q.resize (quads);
+		this->pole_angles.resize (this->quads);
+		this->Q.resize (this->quads);
 
-		this->coefficients.resize (quads);
+		this->coefficients.resize (this->quads);
 
 		for (i = 0; i < this->quads; ++i) {
 			this->coefficients[i].resize (3);
@@ -255,6 +255,8 @@ ButterworthHP::filterPrintf ()
 	std::cout << "Butterworth Highpass:" << std::endl;
 
 	/* Print the numerators */
+	std::cout << "Gain = " << this->gain << std::endl;
+
 	std::cout << "Numerator:" << std::endl;
 
 	for (i = 0; i < this->quads; ++i) {
@@ -264,8 +266,6 @@ ButterworthHP::filterPrintf ()
 
 		std::cout << std::endl;
 	}
-
-	std::cout << "Gain = " << this->gain << std::endl;
 
 	std::cout <<std::endl;
 
@@ -441,10 +441,10 @@ ChebyshevLP::ChebyshevLP (int n, double cutoff_freq, double pass_gain, double ma
 		}
 	}
 
-	this->sigma.resize (quads);
-	this->omega.resize (quads);
-	this->pole_freq.resize (quads);
-	this->Q.resize (quads);
+	this->sigma.resize (this->quads);
+	this->omega.resize (this->quads);
+	this->pole_freq.resize (this->quads);
+	this->Q.resize (this->quads);
 
 	this->order = n;
 	this->w0 = cutoff_freq;
@@ -639,8 +639,8 @@ ChebyshevHP::ChebyshevHP (int n, double cutoff_freq, double pass_gain, double ma
 		this->w0 = cutoff_freq;
 		this->a_max = max;
 
-		this->coefficients.resize (quads);
-		this->numerator.resize (quads);
+		this->coefficients.resize (this->quads);
+		this->numerator.resize (this->quads);
 
 		for (i = 0; i < this->quads; ++i) {
 			this->coefficients[i].resize (3);
@@ -648,10 +648,10 @@ ChebyshevHP::ChebyshevHP (int n, double cutoff_freq, double pass_gain, double ma
 		}
 	}
 
-	this->pole_freq.resize (quads);
-	this->sigma.resize (quads);
-	this->omega.resize (quads);
-	this->Q.resize (quads);
+	this->pole_freq.resize (this->quads);
+	this->sigma.resize (this->quads);
+	this->omega.resize (this->quads);
+	this->Q.resize (this->quads);
 
 	/* Initialize the constants */
 	this->a_max = max;
@@ -679,6 +679,8 @@ ChebyshevHP::filterPrintf ()
 	std::cout << "Chebyshev highpass:\n\n";
 
 	/* Print the numerator */
+	std::cout << "Gain = " << this->gain << "\n\n";
+
 	std::cout << "Numerator:" << std::endl;
 
 	for (i = 0; i < this->quads; ++i) {
@@ -688,8 +690,6 @@ ChebyshevHP::filterPrintf ()
 
 		std::cout << std::endl;
 	}
-
-	std::cout << "Gain = " << this->gain << "\n\n";
 
 	/* Print the denominator */
 	std::cout << "Denominator:" << std::endl;
@@ -873,7 +873,7 @@ ChebyshevHP::calcCoefficients ()
 			this->coefficients[i][1] /= quad_term;
 			this->coefficients[i][2] /= quad_term;
 
-			gainMult *= quad_term;
+			gain_mult *= quad_term;
 		}
 	}
 
@@ -888,7 +888,7 @@ ChebyshevHP::calcCoefficients ()
 		this->coefficients[0][1] /= quad_term;
 		this->coefficients[0][2] /= quad_term;
 
-		gainMult *= quad_term;
+		gain_mult *= quad_term;
 
 		for (i = 1; i < this->quads; ++i) {
 			temp_num = this->coefficients[i][0];
@@ -901,7 +901,7 @@ ChebyshevHP::calcCoefficients ()
 			this->coefficients[i][1] /= quad_term;
 			this->coefficients[i][2] /= quad_term;
 
-			gainMult *= quad_term;
+			gain_mult *= quad_term;
 		}
 	}
 
@@ -913,7 +913,7 @@ ChebyshevHP::calcCoefficients ()
 	 * gain = passband_gain / (2^(n - 1) * epsilon * gainMult) */
 	this->gain = this->passband_gain;
 	this->gain /= (pow (2, n - 1) * this->epsilon);
-	this->gain /= gainMult;
+	this->gain /= gain_mult;
 
 	/* Now everything should be fully calculated */
 }
