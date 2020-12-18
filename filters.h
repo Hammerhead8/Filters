@@ -138,7 +138,7 @@ class
 InverseChebyshevLP
 {
 	public:
-		InverseChebyshevLP (int n, double cutoffFreq, double passGain, double min);
+		InverseChebyshevLP (int n, double cutoff_freq, double pass_gain, double min);
 		void filterPrintf ();
 		void calcCoefficients ();
 
