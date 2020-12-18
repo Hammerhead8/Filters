@@ -41,12 +41,12 @@ ButterworthLP::ButterworthLP (int n, double cutoff_freq, double max)
 	if (n % 2 == 0) {
 		this->quads = n / 2;
 
-		this->pole_angles.resize (quads);
-		this->Q.resize (quads);
+		this->pole_angles.resize (this->quads);
+		this->Q.resize (this->quads);
 
-		this->coefficients.resize (quads);
+		this->coefficients.resize (this->quads);
 
-		for (i = 0; i < quads; ++i) {
+		for (i = 0; i < this->quads; ++i) {
 			this->coefficients[i].resize (3);
 		}
 	}
@@ -55,12 +55,12 @@ ButterworthLP::ButterworthLP (int n, double cutoff_freq, double max)
 	else {
 		this->quads = (n + 1) / 2;
 
-		this->pole_angles.resize (quads);
-		this->Q.resize (quads);
+		this->pole_angles.resize (this->quads);
+		this->Q.resize (this->quads);
 
-		this->coefficients.resize (quads);
+		this->coefficients.resize (this->quads);
 
-		for (i = 0; i < quads; ++i) {
+		for (i = 0; i < this->quads; ++i) {
 			this->coefficients[i].resize (3);
 		}
 	}
@@ -214,11 +214,11 @@ ButterworthHP::ButterworthHP (int n, double cutoff_freq, double max)
 	if (n % 2 == 0) {
 		this->quads = n / 2;
 
-		this->pole_angles.resize (quads);
-		this->Q.resize (quads);
+		this->pole_angles.resize (this->quads);
+		this->Q.resize (this->quads);
 
-		this->coefficients.resize (quads);
-		this->numerator.resize (quads);
+		this->coefficients.resize (this->quads);
+		this->numerator.resize (this->quads);
 
 		for (i = 0; i < this->quads; ++i) {
 			this->coefficients[i].resize (3);
@@ -229,11 +229,11 @@ ButterworthHP::ButterworthHP (int n, double cutoff_freq, double max)
 	else {
 		this->quads = (n + 1) / 2;
 
-		this->pole_angles.resize (quads);
-		this->Q.resize (quads);
+		this->pole_angles.resize (this->quads);
+		this->Q.resize (this->quads);
 
-		this->coefficients.resize (quads);
-		this->numerator.resize (quads);
+		this->coefficients.resize (this->quads);
+		this->numerator.resize (this->quads);
 
 		for (i = 0; i < this->quads; ++i) {
 			this->coefficients[i].resize (3);
@@ -424,7 +424,7 @@ ChebyshevLP::ChebyshevLP (int n, double cutoff_freq, double pass_gain, double ma
 		this->quads = n / 2;
 
 		/* Create the array for the coefficients */
-		this->coefficients.resize (quads);
+		this->coefficients.resize (this->quads);
 
 		for (i = 0; i < this->quads; ++i) {
 			this->coefficients[i].resize (3);
@@ -435,17 +435,17 @@ ChebyshevLP::ChebyshevLP (int n, double cutoff_freq, double pass_gain, double ma
 		this->quads = (n + 1) / 2;
 
 		/* Create the array for the coefficients */
-		this->coefficients.resize (quads);
+		this->coefficients.resize (this->quads);
 
 		for (i = 0; i < this->quads; ++i) {
 			this->coefficients[i].resize (3);
 		}
 	}
 
-	this->sigma.resize (quads);
-	this->omega.resize (quads);
-	this->pole_freq.resize (quads);
-	this->Q.resize (quads);
+	this->sigma.resize (this->quads);
+	this->omega.resize (this->quads);
+	this->pole_freq.resize (this->quads);
+	this->Q.resize (this->quads);
 
 	this->order = n;
 	this->w0 = cutoff_freq;
@@ -624,8 +624,8 @@ ChebyshevHP::ChebyshevHP (int n, double cutoff_freq, double pass_gain, double ma
 		this->w0 = cutoff_freq;
 		this->a_max = max;
 
-		this->coefficients.resize (quads);
-		this->numerator.resize (quads);
+		this->coefficients.resize (this->quads);
+		this->numerator.resize (this->quads);
 
 		for (i = 0; i < this->quads; ++i) {
 			this->coefficients[i].resize (3);
@@ -641,8 +641,8 @@ ChebyshevHP::ChebyshevHP (int n, double cutoff_freq, double pass_gain, double ma
 		this->w0 = cutoff_freq;
 		this->a_max = max;
 
-		this->coefficients.resize (quads);
-		this->numerator.resize (quads);
+		this->coefficients.resize (this->quads);
+		this->numerator.resize (this->quads);
 
 		for (i = 0; i < this->quads; ++i) {
 			this->coefficients[i].resize (3);
@@ -650,10 +650,10 @@ ChebyshevHP::ChebyshevHP (int n, double cutoff_freq, double pass_gain, double ma
 		}
 	}
 
-	this->pole_freq.resize (quads);
-	this->sigma.resize (quads);
-	this->omega.resize (quads);
-	this->Q.resize (quads);
+	this->pole_freq.resize (this->quads);
+	this->sigma.resize (this->quads);
+	this->omega.resize (this->quads);
+	this->Q.resize (this->quads);
 
 	/* Initialize the constants */
 	this->a_max = max;
@@ -942,8 +942,8 @@ InverseChebyshevLP::InverseChebyshevLP (int n, double cutoff_freq, double pass_g
 	if (n % 2 == 0) {
 		this->quads = n / 2;
 
-		this->coefficients.resize (quads);
-		this->numerator.resize (quads);
+		this->coefficients.resize (this->quads);
+		this->numerator.resize (this->quads);
 
 		for (i = 0; i < this->quads; ++i) {
 			this->coefficients[i].resize (3);
@@ -953,8 +953,8 @@ InverseChebyshevLP::InverseChebyshevLP (int n, double cutoff_freq, double pass_g
 	else {
 		this->quads = (n + 1) / 2;
 
-		this->coefficients.resize (quads);
-		this->numerator.resize (quads);
+		this->coefficients.resize (this->quads);
+		this->numerator.resize (this->quads);
 
 		for (i = 0; i < this->quads; ++i) {
 			this->coefficients[i].resize (3);
@@ -962,12 +962,12 @@ InverseChebyshevLP::InverseChebyshevLP (int n, double cutoff_freq, double pass_g
 		}
 	}
 
-	this->sigma.resize (quads);
-	this->omega.resize (quads);
-	this->pole_freq.resize (quads);
-	this->Q.resize (quads);
-	this->M.resize (quads);
-	this->zero_freq.resize (quads);
+	this->sigma.resize (this->quads);
+	this->omega.resize (this->quads);
+	this->pole_freq.resize (this->quads);
+	this->Q.resize (this->quads);
+	this->M.resize (this->quads);
+	this->zero_freq.resize (this->quads);
 
 	/* Initialize the constants */
 	this->order = n;
@@ -976,8 +976,7 @@ InverseChebyshevLP::InverseChebyshevLP (int n, double cutoff_freq, double pass_g
 	this->w0 = cutoff_freq;
 
 	/* Convert the desired passband gain from dB to linear */
-	this->pass_gain = pow (10, pass_gain / 20);
-	this->passband_gain = pass_gain;
+	this->passband_gain = pow (10, pass_gain / 20);
 	this->K = 1;
 }
 
