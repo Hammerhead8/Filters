@@ -712,8 +712,8 @@ ChebyshevHP::calcCoefficients ()
 	int i, j;
 	int n;
 	double a, sinhA, coshA;
-	double quadTerm, gainMult = 1;
-	double tempNum;
+	double quad_term, gain_mult = 1;
+	double temp_num;
 	std::vector<double> temp (3);
 
 	/* Pole locations:  s_k = o_k + jw_k
@@ -865,57 +865,57 @@ ChebyshevHP::calcCoefficients ()
 	/* If the order is even then there is no linear term to deal with */
 	if (n % 2 == 0) {
 		for (i = 0; i < this->quads; ++i) {
-			tempNum = this->coefficients[i][0];
+			temp_num = this->coefficients[i][0];
 			this->coefficients[i][0] = this->coefficients[i][2];
-			this->coefficients[i][2] = tempNum;
+			this->coefficients[i][2] = temp_num;
 
-			quadTerm = this->coefficients[i][0];
+			quad_term = this->coefficients[i][0];
 
-			this->coefficients[i][0] /= quadTerm;
-			this->coefficients[i][1] /= quadTerm;
-			this->coefficients[i][2] /= quadTerm;
+			this->coefficients[i][0] /= quad_term;
+			this->coefficients[i][1] /= quad_term;
+			this->coefficients[i][2] /= quad_term;
 
-			gainMult *= quadTerm;
+			gain_mult *= quad_term;
 		}
 	}
 
 	/* Otherwise the order is odd and we need to deal with the linear factor */
 	else {
-		tempNum = this->coefficients[0][1];
+		temp_num = this->coefficients[0][1];
 		this->coefficients[0][1] = this->coefficients[0][2];
-		this->coefficients[0][2] = tempNum;
+		this->coefficients[0][2] = temp_num;
 
-		quadTerm = this->coefficients[0][1];
+		quad_term = this->coefficients[0][1];
 
-		this->coefficients[0][1] /= quadTerm;
-		this->coefficients[0][2] /= quadTerm;
+		this->coefficients[0][1] /= quad_term;
+		this->coefficients[0][2] /= quad_term;
 
-		gainMult *= quadTerm;
+		gain_mult *= quad_term;
 
 		for (i = 1; i < this->quads; ++i) {
-			tempNum = this->coefficients[i][0];
+			temp_num = this->coefficients[i][0];
 			this->coefficients[i][0] = this->coefficients[i][2];
-			this->coefficients[i][2] = tempNum;
+			this->coefficients[i][2] = temp_num;
 
-			quadTerm = this->coefficients[i][0];
+			quad_term = this->coefficients[i][0];
 
-			this->coefficients[i][0] /= quadTerm;
-			this->coefficients[i][1] /= quadTerm;
-			this->coefficients[i][2] /= quadTerm;
+			this->coefficients[i][0] /= quad_term;
+			this->coefficients[i][1] /= quad_term;
+			this->coefficients[i][2] /= quad_term;
 
-			gainMult *= quadTerm;
+			gain_mult *= quad_term;
 		}
 	}
 
 	/* The only thing left to find is the numerator.
 	 * We will use the passband gain calculated in the
-	 * class constructor and the value of gainMult we
+	 * class constructor and the value of gain_mult we
 	 * calculated above when we performed the lowpass-highpass
 	 * transform. The expression for the numerator is:
-	 * gain = passband_gain / (2^(n - 1) * epsilon * gainMult) */
+	 * gain = passband_gain / (2^(n - 1) * epsilon * gain_mult) */
 	this->gain = this->passband_gain;
 	this->gain /= (pow (2, n - 1) * this->epsilon);
-	this->gain /= gainMult;
+	this->gain /= gain_mult;
 
 	/* Now everything should be fully calculated */
 }
