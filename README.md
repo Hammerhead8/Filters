@@ -6,6 +6,7 @@ Currently the following filter types are supported:
 * Lowpass Chebyshev
 * Highpass Chebyshev
 * Lowpass Inverse Chebyshev
+* Highpass Inverse Chebyshev
 
 This allows the tranfer function of common filter classes to be calculated much faster than could be done by hand and without the need to consult tables.
 
@@ -49,6 +50,8 @@ The classes for the available filter types are as follows:
 	* Highpass Chebyshev
 * InverseChebyshevLP
 	* Lowpass Inverse Chebyshev
+* InverseChebyshevHP
+	* Highpass Inverse Chebyshev
 
 An example for a fifth order lowpass Butterworth filter with a cutoff frequency of 1 rad/s and a passband gain of 0 dB would be as follows:
 
