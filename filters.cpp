@@ -975,7 +975,6 @@ InverseChebyshevLP::InverseChebyshevLP (int n, double cutoff_freq, double pass_g
 
 	/* Convert the desired passband gain from dB to linear */
 	this->passband_gain = pow (10, pass_gain / 20);
-//	passband_gain = pass_gain;
 	this->K = 1;
 }
 
