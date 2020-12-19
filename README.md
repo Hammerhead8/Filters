@@ -22,6 +22,8 @@ to include Chebyshev and Inverse Chebyshev filters.
 * Lowpass and highpass versions of common filter classes
 * Filter stages are sorted by increasing Q for optimal cascade design
 * Simple programming interface consisting of two functions
+	* Calculate the transfer function
+	* Print the transfer function
 * Only requires standard math library and vectors
 * Compatible with C++03
 
