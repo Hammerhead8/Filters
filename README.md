@@ -39,6 +39,7 @@ to include Chebyshev and Inverse Chebyshev filters.
 * Highpass Inverse Chebyshev filters
 * Error handling
 * Ability to cascade filters
+* Ability to build as a shared library
 
 # Usage
 The classes for the available filter types are as follows:
