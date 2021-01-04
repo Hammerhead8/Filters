@@ -16,6 +16,9 @@ This library came about after taking a university class on analog signal process
 It started as a simple program to calculate the pole locations of Butterworth filters which expanded to calculating the transfer function. From there it has expanded
 to include Chebyshev and Inverse Chebyshev filters.
 
+The reference for this project is *Design of Analog Filters, 2nd Edition* by Rolf Schaumann, Haiqiao Xiao, and Mac E. Van Valkenburg. The class variable names are made to match the syntax
+in this book.
+
 # Features
 * Supports arbitrary filter order
 * Supports specifying passband gain
@@ -39,6 +42,7 @@ to include Chebyshev and Inverse Chebyshev filters.
 * Highpass Inverse Chebyshev filters
 * Error handling
 * Ability to cascade filters
+* Ability to build as a shared library
 
 # Usage
 The classes for the available filter types are as follows:
