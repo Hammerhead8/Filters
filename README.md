@@ -36,6 +36,8 @@ to include Chebyshev and Inverse Chebyshev filters.
 * Highpass Inverse Chebyshev filters
 * Error handling
 * Ability to cascade filters
+* Octave/Matlab style transfer function printing
+* Calculate transfer function from given poles and zeros
 
 # Usage
 The classes for the available filter types are as follows:
