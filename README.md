@@ -10,7 +10,7 @@ Currently the following filter types are supported:
 
 This allows the tranfer function of common filter classes to be calculated much faster than could be done by hand and without the need to consult tables.
 
-The results can be easily verified by plotting the frequency response of the transfer function.
+The results can be easily verified by plotting the frequency response of the transfer function or checking tables.
 
 This library came about after taking a university class on analog signal processing and not wanting to have to look up transfer function coefficients in tables.
 It started as a simple program to calculate the pole locations of Butterworth filters which expanded to calculating the transfer function. From there it has expanded
