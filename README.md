@@ -76,7 +76,7 @@ main ()
 }
 ```
 
-This will give the following output:
+Here the arguments for the constructor function are the order of the filter, cutoff frequency, and passband gain. This will give the following output:
 ```
 Numerator: 1
 
@@ -86,7 +86,7 @@ Denominator:
 1 0.618034 1
 ```
 
-Another example with a fourth order highpass Chebyshev filter with a cutoff frequency of 15 rad/s and maximum passband ripple of 20 dB would be as follows:
+Another example with a sixth order highpass Chebyshev filter with a cutoff frequency of 15 rad/s and maximum passband ripple of 20 dB would be as follows:
 
 ```
 #include "filters.h"
@@ -94,7 +94,7 @@ Another example with a fourth order highpass Chebyshev filter with a cutoff freq
 int
 main ()
 {
-	ChebyshevHP myFilter (6, 15, 20);
+	ChebyshevHP myFilter (6, 15, 0, 20);
 
 	myFilter.calcCoefficients ();
 	myFilter.filterPrintf ();
@@ -103,17 +103,21 @@ main ()
 }
 ```
 
-This will give the following output:
+Note that the arguments for the constructor function are the order of the filter, cutoff frequency, passband gain, and passband ripple. This will give the following output:
 
 ```
-Numerator:
-1 0 0
-1 0 0
-Gain = 5062.5
+Chebyshev highpass:
 
+Gain = 0.1
+
+Numerator:
+1 0 0 
+1 0 0 
+1 0 0 
 Denominator:
-1 0.337171 263.41 
-1 4.72753 1529.82
+1 0.139131 241.082 
+1 7.20421 3344.88 
+1 0.709114 449.748
 ```
 
 To compile, simply include the filters.h file in your source file and call the compiler as normal.
