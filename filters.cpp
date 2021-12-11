@@ -67,7 +67,7 @@ ButterworthLP::ButterworthLP (int n, double cutoff_freq, double max)
 	/* Initialize the constants */
 	this->order = n;
 	this->w0 = cutoff_freq;
-	this->gain = pow (10, max / 20);
+	this->gain = pow (10, max / 20) * pow (cutoff_freq, n);
 }
 
 /* Print the numerator and denominator coefficients of the transfer function */
