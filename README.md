@@ -52,6 +52,14 @@ The library can be built from source using the following commands:
 
 To remove the library, use `make uninstall`.
 
+# Compilation, Installation, and Removal
+To build the library from source first unpack the tar archive and then use `cd` to enter the source directory. The library can be built from source using the following commands in the source directory:
+1. `./configure` to configure the package for your system
+2. `make` to compile the package
+3. `make install` to install the package
+
+To remove the library, use `make uninstall` in the source directory.
+
 # Usage
 The classes for the available filter types are as follows:
 * ButterworthLP
