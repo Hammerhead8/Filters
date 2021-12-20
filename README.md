@@ -44,6 +44,14 @@ in this book.
 * Ability to cascade filters
 * Ability to build as a shared library
 
+# Compilation, Installation, and Removal
+To build the library from source first unpack the tar archive and then use `cd` to enter the source directory. The library can be built from source using the following commands in the source directory:
+1. `./configure` to configure the package for your system
+2. `make` to compile the package
+3. `make install` to install the package
+
+To remove the library, use `make uninstall` in the source directory.
+
 # Usage
 The classes for the available filter types are as follows:
 * ButterworthLP
@@ -120,7 +128,4 @@ Denominator:
 1 0.709114 449.748
 ```
 
-To compile, simply include the filters.h file in your source file and call the compiler as normal.
-Using g++ this would look something like:
- `g++ output.cpp filters.cpp -o output`
-
+The if the program is called `example.cc`, it can be compiled using g++ as follows:  `g++ example.cc -o example -lfilters`.
