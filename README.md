@@ -39,21 +39,12 @@ in this book.
 # Planned Features
 * Bandpass filters
 * Arbitrary transmission zeros for lowpass and highpass
-* Highpass Inverse Chebyshev filters
 * Error handling
 * Ability to cascade filters
-* Ability to build as a shared library
 
 # Compilation, Installation, and Removal
-The library can be built from source using the following commands:
-1. `./configure` to configure the package for your system
-2. `make` to compile the package
-3. `make install` to install the package
-
-To remove the library, use `make uninstall`.
-
-# Compilation, Installation, and Removal
-To build the library from source first unpack the tar archive and then use `cd` to enter the source directory. The library can be built from source using the following commands in the source directory:
+The library can be built from source by downloading the latest release under the Releases section.
+Use the following commands after unpacking the archive in the desired directory:
 1. `./configure` to configure the package for your system
 2. `make` to compile the package
 3. `make install` to install the package
