@@ -47,6 +47,27 @@ ButterworthLP
 		std::vector <std::vector<double> > coefficients; /* The factored denominator of the transfer function */
 };
 
+/* Class for Butterworth lowpass filter transfer function.
+ * n is an integer holding the order of the filter
+ * numerator is the numerator of the transfer function
+ * denominator is an array of the coefficients in fractored form */
+class
+ButterworthLP_TF
+{
+	public:
+		ButterworthLP_TF (int n, double numerator, double *denominator); /* Class constructor */
+		double calcCutoffFreq ();
+		double calcGain ();
+
+	private:
+		int order; /* Order of the filter */
+		int quads; /* Number of linear and quadratic factors in the denominator */
+		double w0; /* Cutoff frequency of the filter */
+		double gain; /* Passband gain of the filter in dB */
+		double num; /* numerator of the filter */
+		std::vector<std::vector<double> > coefficients; /* Factored denominator of the filter */
+};
+
 /* Class for Butterworth highpass filter
  * n is an integer holding the order of the filter
  * cutoffFreq is the cutoff frequency of the filter in rad/s
